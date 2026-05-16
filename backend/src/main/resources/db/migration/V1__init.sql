@@ -95,12 +95,12 @@ CREATE TABLE orders (
     shipping_address          VARCHAR(255),
     shipping_city             VARCHAR(100),
     shipping_postal_code      VARCHAR(20),
-    shipping_country          CHAR(2),                       -- ISO 3166-1 alpha-2
+    shipping_country          VARCHAR(2),                       -- ISO 3166-1 alpha-2
     -- Montants en centimes
     subtotal_cents            INTEGER      NOT NULL,
     shipping_cost_cents       INTEGER      NOT NULL DEFAULT 0,
     total_cents               INTEGER      NOT NULL,
-    currency                  CHAR(3)      NOT NULL DEFAULT 'EUR',
+    currency                  VARCHAR(3)   NOT NULL DEFAULT 'EUR',
     -- Stripe
     stripe_session_id         VARCHAR(255),
     stripe_payment_intent_id  VARCHAR(255),

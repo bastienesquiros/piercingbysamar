@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "catalogue": "Catalogue",
+    "search": "Search...",
+    "cart": "Cart",
+    "language": "FR"
+  },
+  "home": {
+    "hero_title": "Jewelry & Piercings",
+    "hero_subtitle": "ASTM F136 Titanium · Surgical Steel · Nickel Free",
+    "shop_by": "Shop by category",
+    "new_arrivals": "New Arrivals",
+    "view_all": "View all"
+  },
+  "product": {
+    "add_to_cart": "Add to cart",
+    "out_of_stock": "Out of stock",
+    "nickel_free": "Nickel Free",
+    "material": "Material",
+    "size": "Size",
+    "color": "Color",
+    "sku": "Reference"
+  },
+  "cart": {
+    "title": "My cart",
+    "empty": "Your cart is empty",
+    "continue_shopping": "Continue shopping",
+    "total": "Total",
+    "checkout": "Checkout",
+    "remove": "Remove"
+  },
+  "checkout": {
+    "shipping": "Home delivery",
+    "click_collect": "Click & Collect",
+    "pay": "Pay",
+    "your_info": "Your information"
+  },
+  "order": {
+    "confirmed": "Order confirmed",
+    "reference": "Reference"
+  },
+  "footer": {
+    "legal": "Legal notice",
+    "cgv": "Terms",
+    "privacy": "Privacy",
+    "contact": "Contact"
+  }
+}

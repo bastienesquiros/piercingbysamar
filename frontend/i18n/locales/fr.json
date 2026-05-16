@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "catalogue": "Catalogue",
+    "search": "Rechercher...",
+    "cart": "Panier",
+    "language": "EN"
+  },
+  "home": {
+    "hero_title": "Bijoux & Piercings",
+    "hero_subtitle": "Titanium ASTM F136 · Acier chirurgical · Nickel Free",
+    "shop_by": "Shopper par catégorie",
+    "new_arrivals": "Nouveautés",
+    "view_all": "Voir tout"
+  },
+  "product": {
+    "add_to_cart": "Ajouter au panier",
+    "out_of_stock": "Rupture de stock",
+    "nickel_free": "Nickel Free",
+    "material": "Matériau",
+    "size": "Taille",
+    "color": "Couleur",
+    "sku": "Référence"
+  },
+  "cart": {
+    "title": "Mon panier",
+    "empty": "Votre panier est vide",
+    "continue_shopping": "Continuer mes achats",
+    "total": "Total",
+    "checkout": "Commander",
+    "remove": "Supprimer"
+  },
+  "checkout": {
+    "shipping": "Livraison à domicile",
+    "click_collect": "Click & Collect",
+    "pay": "Payer",
+    "your_info": "Vos informations"
+  },
+  "order": {
+    "confirmed": "Commande confirmée",
+    "reference": "Référence"
+  },
+  "footer": {
+    "legal": "Mentions légales",
+    "cgv": "CGV",
+    "privacy": "Confidentialité",
+    "contact": "Contact"
+  }
+}
