@@ -4,6 +4,7 @@ import com.besquiros.piercingbysamar.dto.request.UpdateOrderStatusRequest;
 import com.besquiros.piercingbysamar.dto.response.OrderResponse;
 import com.besquiros.piercingbysamar.dto.response.PageResponse;
 import com.besquiros.piercingbysamar.entity.enums.OrderStatus;
+import com.besquiros.piercingbysamar.service.GdprAnonymizationService;
 import com.besquiros.piercingbysamar.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminOrderController {
 
     private final OrderService orderService;
+    private final GdprAnonymizationService gdprService;
 
     @GetMapping
     public ResponseEntity<PageResponse<OrderResponse>> getAll(
@@ -39,5 +41,12 @@ public class AdminOrderController {
     public ResponseEntity<OrderResponse> updateStatus(@PathVariable Long id,
                                                       @Valid @RequestBody UpdateOrderStatusRequest request) {
         return ResponseEntity.ok(orderService.updateStatus(id, request.status()));
+    }
+
+    /** Anonymise les données personnelles d'une commande (RGPD — droit à l'effacement). */
+    @PostMapping("/{id}/anonymize")
+    public ResponseEntity<Void> anonymize(@PathVariable Long id) {
+        gdprService.anonymizeById(id);
+        return ResponseEntity.noContent().build();
     }
 }

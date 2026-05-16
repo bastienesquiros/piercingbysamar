@@ -207,6 +207,6 @@ class OrderServiceTest {
     private OrderResponse buildOrderResponse(String ref, String status) {
         return new OrderResponse(1L, ref, "SHIPPING", status, "client@test.com",
                 "Test", null, null, null, null, null,
-                2490, 0, 2490, "EUR", null, List.of(), null, null);
+                2490, 0, 2490, "EUR", null, List.of(), null, null, null);
     }
 }

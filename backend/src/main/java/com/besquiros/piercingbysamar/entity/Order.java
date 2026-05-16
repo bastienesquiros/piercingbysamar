@@ -96,4 +96,8 @@ public class Order {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    /** Non-null = les données perso ont été effacées (RGPD). */
+    @Column
+    private LocalDateTime anonymizedAt;
 }

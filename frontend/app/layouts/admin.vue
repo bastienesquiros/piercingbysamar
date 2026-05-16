@@ -92,6 +92,7 @@ const navItems = [
   { to: '/admin', label: 'Dashboard', icon: 'lucide:layout-dashboard' },
   { to: '/admin/products', label: 'Produits', icon: 'lucide:package' },
   { to: '/admin/categories', label: 'Catégories', icon: 'lucide:tag' },
+  { to: '/admin/tags', label: 'Tags', icon: 'lucide:hash' },
   { to: '/admin/orders', label: 'Commandes', icon: 'lucide:shopping-cart' },
 ]
 
@@ -102,6 +103,7 @@ const currentPageTitle = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
   if (route.path.startsWith('/admin/products')) return 'Produits'
   if (route.path.startsWith('/admin/categories')) return 'Catégories'
+  if (route.path.startsWith('/admin/tags')) return 'Tags'
   if (route.path.startsWith('/admin/orders')) return 'Commandes'
   return 'Admin'
 })

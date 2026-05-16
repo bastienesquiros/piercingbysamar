@@ -40,6 +40,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Stripe webhook doit passer sans JWT
                 .requestMatchers("/api/stripe/webhook").permitAll()
+                // Setup premier admin (se désactive seul dès qu'un admin existe)
+                .requestMatchers(HttpMethod.POST, "/api/setup").permitAll()
                 // Auth publique
                 .requestMatchers("/api/auth/**").permitAll()
                 // Catalogue public (lecture seule)
@@ -51,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/stripe/checkout").permitAll()
                 // Taux de change public
                 .requestMatchers(HttpMethod.GET, "/api/exchange-rates").permitAll()
+                // Tags public (lecture)
+                .requestMatchers(HttpMethod.GET, "/api/tags").permitAll()
                 // Swagger (dev)
                 .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                 // Tout le reste → admin

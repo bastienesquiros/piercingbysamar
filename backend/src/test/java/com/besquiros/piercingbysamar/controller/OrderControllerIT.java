@@ -44,7 +44,7 @@ class OrderControllerIT {
         return new OrderResponse(1L, ref, "SHIPPING", "PENDING",
                 "client@test.com", "Client Test", null,
                 "12 rue Test", "Paris", "75001", "FR",
-                2490, 490, 2980, "EUR", null, List.of(), null, null);
+                2490, 490, 2980, "EUR", null, List.of(), null, null, null);
     }
 
     @Test

@@ -22,5 +22,6 @@ public record OrderResponse(
         String notes,
         List<OrderItemResponse> items,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        LocalDateTime anonymizedAt
 ) {}

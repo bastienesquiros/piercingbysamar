@@ -200,6 +200,35 @@
               </div>
             </section>
 
+            <!-- ── Tags (edit only) ── -->
+            <section v-if="editingProduct" class="space-y-3">
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tags</h4>
+                <Transition name="fade">
+                  <span v-if="tagSaved" class="text-xs text-green-600 flex items-center gap-1">
+                    <Icon name="lucide:check" class="w-3 h-3" /> sauvegardé
+                  </span>
+                </Transition>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="tag in allTags"
+                  :key="tag.id"
+                  type="button"
+                  class="px-3 py-1 rounded-full text-xs font-medium border transition-colors"
+                  :class="productTagIds.has(tag.id)
+                    ? 'bg-[--color-primary] text-white border-[--color-primary]'
+                    : 'bg-white text-[--color-text-muted] border-[--color-border] hover:border-[--color-primary]'"
+                  @click="toggleTag(tag.id)"
+                >
+                  {{ tag.name }}
+                </button>
+              </div>
+              <p v-if="allTags.length === 0" class="text-xs text-gray-400">
+                Aucun tag disponible. <NuxtLink to="/admin/tags" class="underline">Créer des tags</NuxtLink>
+              </p>
+            </section>
+
             <!-- ── Variants (edit only) ── -->
             <section v-if="editingProduct" class="space-y-4">
               <div class="flex items-center justify-between">
@@ -394,7 +423,7 @@
           <!-- Panel footer -->
           <div class="px-6 py-4 border-t border-gray-100 bg-white sticky bottom-0 flex gap-3 justify-end">
             <button class="btn-ghost" @click="closePanel">Annuler</button>
-            <button class="btn-primary" :disabled="savingProduct || (!!editingId && !isDirty)" @click="saveProduct">
+            <button class="btn-primary" :disabled="savingProduct" @click="saveProduct">
               <Icon v-if="savingProduct" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
               {{ editingId ? 'Enregistrer' : 'Créer le produit' }}
             </button>
@@ -457,12 +486,49 @@ const flatCategories = computed(() => {
   return flat
 })
 
+// ── Tags ───────────────────────────────────────────────────────
+interface Tag { id: number; name: string; slug: string }
+const { data: tagsData } = await useAsyncData('admin-tags', () =>
+  get<Tag[]>('/api/tags')
+)
+const allTags = computed(() => tagsData.value ?? [])
+
+const productTagIds = ref<Set<number>>(new Set())
+const tagSaved = ref(false)
+let tagSavedTimer: ReturnType<typeof setTimeout> | null = null
+
 // ── Panel state ────────────────────────────────────────────────
 const panelOpen = ref(false)
 const editingId = ref<number | null>(null)
 const editingProduct = ref<ProductDetail | null>(null)
 const panelError = ref<string | null>(null)
 const savingProduct = ref(false)
+
+// Watch editingProduct to sync selected tag IDs (must be after editingProduct declaration)
+watch(editingProduct, (p) => {
+  if (!p) { productTagIds.value = new Set(); return }
+  const tagNames = p.tags ?? []
+  productTagIds.value = new Set(
+    allTags.value.filter(t => tagNames.includes(t.name)).map(t => t.id)
+  )
+})
+
+async function toggleTag(tagId: number) {
+  if (!editingProduct.value) return
+  const productId = editingProduct.value.id
+  if (productTagIds.value.has(tagId)) {
+    await del(`/api/admin/products/${productId}/tags/${tagId}`, { headers: headers.value })
+    productTagIds.value.delete(tagId)
+    productTagIds.value = new Set(productTagIds.value)
+  } else {
+    await post(`/api/admin/products/${productId}/tags/${tagId}`, {}, { headers: headers.value })
+    productTagIds.value.add(tagId)
+    productTagIds.value = new Set(productTagIds.value)
+  }
+  tagSaved.value = true
+  if (tagSavedTimer) clearTimeout(tagSavedTimer)
+  tagSavedTimer = setTimeout(() => { tagSaved.value = false }, 2000)
+}
 
 const form = reactive({
   name: '',

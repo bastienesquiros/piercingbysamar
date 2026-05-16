@@ -47,7 +47,8 @@ public class OrderMapper {
                 order.getNotes(),
                 items,
                 order.getCreatedAt(),
-                order.getUpdatedAt()
+                order.getUpdatedAt(),
+                order.getAnonymizedAt()
         );
     }
 }
