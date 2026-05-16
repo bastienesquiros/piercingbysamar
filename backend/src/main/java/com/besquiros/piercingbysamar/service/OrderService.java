@@ -123,6 +123,10 @@ public class OrderService {
             mailService.sendShippingNotification(saved);
         } else if (newStatus == OrderStatus.READY) {
             mailService.sendClickCollectReady(saved);
+        } else if (newStatus == OrderStatus.CANCELLED) {
+            mailService.sendCancellation(saved);
+        } else if (newStatus == OrderStatus.COLLECTED) {
+            mailService.sendCollected(saved);
         }
 
         return orderMapper.toResponse(saved);

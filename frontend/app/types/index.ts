@@ -72,12 +72,12 @@ export interface PageResponse<T> {
 
 export interface OrderItem {
   id: number
-  variantId: number
-  variantSku: string
-  snapshotName: string
-  snapshotPriceCents: number
+  productVariantId: number
+  snapshotProductName: string
+  snapshotVariantLabel: string
+  unitPriceCents: number
   quantity: number
-  lineTotalCents: number
+  totalCents: number
 }
 
 export interface Order {

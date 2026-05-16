@@ -132,13 +132,21 @@ class StripeServiceTest {
 
         Event mockEvent = mock(Event.class);
         EventDataObjectDeserializer mockDeserializer = mock(EventDataObjectDeserializer.class);
-        Session mockSession = mock(Session.class);
+
+        String rawJson = """
+                {
+                  "id": "cs_test_123",
+                  "object": "checkout.session",
+                  "metadata": { "order_reference": "PBS-2026-0001" },
+                  "payment_intent": "pi_test_123",
+                  "payment_status": "paid",
+                  "status": "complete"
+                }
+                """;
 
         when(mockEvent.getType()).thenReturn("checkout.session.completed");
         when(mockEvent.getDataObjectDeserializer()).thenReturn(mockDeserializer);
-        when(mockDeserializer.getObject()).thenReturn(Optional.of(mockSession));
-        when(mockSession.getMetadata()).thenReturn(Map.of("order_reference", "PBS-2026-0001"));
-        when(mockSession.getPaymentIntent()).thenReturn("pi_test_123");
+        when(mockDeserializer.getRawJson()).thenReturn(rawJson);
 
         try (MockedStatic<Webhook> webhookStatic = mockStatic(Webhook.class)) {
             webhookStatic.when(() -> Webhook.constructEvent("payload", "sig", "whsec_test"))

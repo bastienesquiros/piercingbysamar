@@ -11,7 +11,7 @@
       </div>
 
       <!-- Empty cart redirect -->
-      <div v-if="cart.isEmpty" class="text-center py-20">
+      <div v-if="cart.isEmpty && !submitting" class="text-center py-20">
         <Icon name="lucide:shopping-bag" class="w-12 h-12 text-[--color-border] mx-auto mb-4" />
         <p class="text-[--color-text-muted] mb-4">Votre panier est vide.</p>
         <NuxtLink :to="localePath('/catalogue')" class="btn-primary">Voir le catalogue</NuxtLink>
@@ -96,14 +96,14 @@
                   <label class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide block mb-1.5">
                     Nom complet *
                   </label>
-                  <input v-model="form.customerName" type="text" class="input" placeholder="Samar El Idrissi" />
+                  <input v-model="form.customerName" type="text" class="input" placeholder="Jean Michel Dupont" />
                   <p v-if="errors.customerName" class="text-red-500 text-xs mt-1">{{ errors.customerName }}</p>
                 </div>
                 <div>
                   <label class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide block mb-1.5">
                     Email *
                   </label>
-                  <input v-model="form.customerEmail" type="email" class="input" placeholder="samar@exemple.com" />
+                  <input v-model="form.customerEmail" type="email" class="input" placeholder="jmdupont@exemple.com" />
                   <p v-if="errors.customerEmail" class="text-red-500 text-xs mt-1">{{ errors.customerEmail }}</p>
                 </div>
               </div>
@@ -287,6 +287,7 @@ const router = useRouter()
 const { format } = usePrice()
 
 const loading = ref(false)
+const submitting = ref(false) // stays true during navigation to prevent empty cart flash
 const globalError = ref<string | null>(null)
 
 const isStockError = computed(() => !!globalError.value?.toLowerCase().includes('stock'))
@@ -335,6 +336,7 @@ function validate(): boolean {
 async function submit() {
   if (!validate()) return
   loading.value = true
+  submitting.value = true
   globalError.value = null
 
   try {
@@ -355,19 +357,17 @@ async function submit() {
     const order = await post<Order>('/api/orders', payload)
 
     if (form.orderType === 'SHIPPING') {
-      // Redirect to Stripe Checkout
-      const { checkoutUrl } = await post<{ checkoutUrl: string }>('/api/stripe/checkout', {
+      cart.clear()
+      window.location.href = await post<{ checkoutUrl: string }>('/api/stripe/checkout', {
         orderReference: order.reference,
         displayCurrency: currencyStore.currency,
-      })
-      cart.clear()
-      window.location.href = checkoutUrl
+      }).then(r => r.checkoutUrl)
     } else {
-      // Click & Collect — go straight to confirmation
       cart.clear()
-      router.push(localePath(`/order/confirmation?reference=${order.reference}`))
+      await router.push(localePath(`/order/confirmation?reference=${order.reference}`))
     }
   } catch (err: unknown) {
+    submitting.value = false
     const e = err as { data?: { message?: string } }
     globalError.value = e?.data?.message ?? 'Une erreur est survenue. Veuillez réessayer.'
   } finally {

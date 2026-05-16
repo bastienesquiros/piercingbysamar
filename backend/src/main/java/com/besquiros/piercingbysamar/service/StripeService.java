@@ -7,6 +7,8 @@ import com.besquiros.piercingbysamar.entity.enums.OrderType;
 import com.besquiros.piercingbysamar.exception.BadRequestException;
 import com.besquiros.piercingbysamar.exception.NotFoundException;
 import com.besquiros.piercingbysamar.repository.OrderRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
@@ -41,6 +43,7 @@ public class StripeService {
     private final OrderRepository orderRepository;
     private final MailService mailService;
     private final ExchangeRateService exchangeRateService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Devises supportées par Stripe pour le paiement direct
     private static final java.util.Set<String> STRIPE_SUPPORTED = java.util.Set.of("EUR", "USD", "GBP", "CAD", "CHF");
@@ -88,7 +91,7 @@ public class StripeService {
         try {
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl(successUrl + "?ref=" + orderReference)
+                    .setSuccessUrl(successUrl + "?reference=" + orderReference)
                     .setCancelUrl(cancelUrl)
                     .addAllLineItem(lineItems)
                     .setCustomerEmail(order.getCustomerEmail())
@@ -122,11 +125,19 @@ public class StripeService {
         log.info("Webhook Stripe reçu : {}", event.getType());
 
         if ("checkout.session.completed".equals(event.getType())) {
-            Session session = (Session) event.getDataObjectDeserializer()
-                    .getObject()
-                    .orElseThrow(() -> new RuntimeException("Impossible de désérialiser l'événement Stripe"));
+            // getObject() can be empty on API version mismatch — parse raw JSON instead
+            String orderReference;
+            String paymentIntentId;
+            try {
+                String rawJson = event.getDataObjectDeserializer().getRawJson();
+                JsonNode node = objectMapper.readTree(rawJson);
+                orderReference = node.path("metadata").path("order_reference").asText(null);
+                paymentIntentId = node.path("payment_intent").asText(null);
+            } catch (Exception e) {
+                log.error("Impossible de parser le webhook Stripe : {}", e.getMessage());
+                return;
+            }
 
-            String orderReference = session.getMetadata().get("order_reference");
             if (orderReference == null) {
                 log.warn("Webhook reçu sans order_reference dans les métadonnées");
                 return;
@@ -134,7 +145,7 @@ public class StripeService {
 
             orderRepository.findByReference(orderReference).ifPresentOrElse(order -> {
                 order.setStatus(OrderStatus.PAID);
-                order.setStripePaymentIntentId(session.getPaymentIntent());
+                if (paymentIntentId != null) order.setStripePaymentIntentId(paymentIntentId);
                 Order saved = orderRepository.save(order);
                 mailService.sendPaymentConfirmation(saved);
                 log.info("Commande {} marquée comme PAID via Stripe", orderReference);

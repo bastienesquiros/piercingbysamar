@@ -52,17 +52,18 @@
           <ul class="space-y-3 mb-4">
             <li v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
               <span class="text-[--color-text]">
-                {{ item.snapshotName }}
-                <span class="text-[--color-text-muted]">× {{ item.quantity }}</span>
+                {{ item.snapshotProductName }}
+                <span v-if="item.snapshotVariantLabel" class="text-[--color-text-muted]"> · {{ item.snapshotVariantLabel }}</span>
+                <span class="text-[--color-text-muted]"> × {{ item.quantity }}</span>
               </span>
-              <span class="font-medium text-[--color-text]">{{ format(item.lineTotalCents) }}</span>
+              <span class="font-medium text-[--color-text]">{{ formatMad(item.totalCents) }}</span>
             </li>
           </ul>
 
           <!-- Total -->
           <div class="flex justify-between font-semibold text-[--color-text] pt-3 border-t border-[--color-border]">
-            <span>Total payé</span>
-            <span class="font-serif text-lg">{{ format(order.totalCents) }}</span>
+            <span>{{ order.orderType === 'CLICK_COLLECT' ? 'À payer en boutique' : 'Total payé' }}</span>
+            <span class="font-serif text-lg">{{ formatMad(order.totalCents) }}</span>
           </div>
 
           <!-- Shipping address -->
@@ -83,7 +84,7 @@
               Retrait en boutique
             </p>
             <p>Marrakech · Vous serez contacté·e dès que votre commande sera prête.</p>
-            <p class="mt-1">Paiement sur place : liquide ou carte.</p>
+            <p class="mt-1">Paiement sur place : liquide ou virement.</p>
           </div>
         </div>
 
@@ -112,6 +113,16 @@ const route = useRoute()
 const localePath = useLocalePath()
 const { get } = useApi()
 const { format } = usePrice()
+
+// On the confirmation page, always show amounts in MAD (stored currency)
+function formatMad(cents: number): string {
+  return new Intl.NumberFormat('fr-MA', {
+    style: 'currency',
+    currency: 'MAD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(cents / 100)
+}
 
 const reference = route.query.reference as string
 

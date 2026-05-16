@@ -50,6 +50,18 @@ public class MailService {
         send(order.getCustomerEmail(), subject, body);
     }
 
+    public void sendCancellation(Order order) {
+        String subject = "Commande " + order.getReference() + " annulée — " + shopName;
+        String body = buildCancellationHtml(order);
+        send(order.getCustomerEmail(), subject, body);
+    }
+
+    public void sendCollected(Order order) {
+        String subject = "Merci pour votre visite ! — " + shopName;
+        String body = buildCollectedHtml(order);
+        send(order.getCustomerEmail(), subject, body);
+    }
+
     // ── Envoi ──────────────────────────────────────────────────
 
     private void send(String to, String subject, String html) {
@@ -82,19 +94,32 @@ public class MailService {
                 order.getShippingCity(),
                 order.getShippingCountry()) : "";
 
+        String clickCollectNote = order.getOrderType().name().equals("CLICK_COLLECT") ? """
+                <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+                  <p style="margin:0;font-weight:600">Click &amp; Collect — Marrakech</p>
+                  <p style="margin:8px 0 0;color:#666">Paiement sur place : espèces ou virement.</p>
+                </div>
+                """ : """
+                <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+                  <p style="margin:0;font-weight:600">Paiement en cours de traitement</p>
+                  <p style="margin:8px 0 0;color:#666">Vous recevrez un second email dès que votre paiement Stripe sera confirmé et votre commande mise en préparation.</p>
+                </div>
+                """;
+
         return wrapLayout(order, """
                 <h2 style="color:#2C1810;margin-top:0">Merci pour votre commande, %s !</h2>
                 <p>Nous avons bien reçu votre commande <strong>%s</strong>.</p>
                 <p>Mode : <strong>%s</strong></p>
                 %s
                 %s
-                <p style="margin-top:24px;color:#666">Vous recevrez un email de confirmation dès que votre paiement sera validé.</p>
+                %s
                 """.formatted(
                 order.getCustomerName(),
                 order.getReference(),
                 typeLabel,
                 addressBlock,
-                buildItemsTable(order)));
+                buildItemsTable(order),
+                clickCollectNote));
     }
 
     private String buildPaymentConfirmationHtml(Order order) {
@@ -137,7 +162,7 @@ public class MailService {
                 <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
                   <p style="margin:0;font-weight:600">Informations de retrait</p>
                   <p style="margin:8px 0 0">Pensez à vous munir de votre numéro de commande : <strong>%s</strong></p>
-                  <p style="margin:4px 0 0;color:#666">Paiement accepté : espèces et carte bancaire</p>
+                  <p style="margin:4px 0 0;color:#666">Paiement accepté : espèces et virement</p>
                 </div>
                 %s
                 """.formatted(
@@ -147,21 +172,55 @@ public class MailService {
                 buildItemsTable(order)));
     }
 
+    private String buildCancellationHtml(Order order) {
+        return wrapLayout(order, """
+                <h2 style="color:#2C1810;margin-top:0">Commande annulée</h2>
+                <p>Bonjour %s,</p>
+                <p>Votre commande <strong>%s</strong> a été annulée.</p>
+                <p style="color:#666">Si vous pensez qu'il s'agit d'une erreur ou si vous avez des questions, n'hésitez pas à nous contacter via WhatsApp ou par email.</p>
+                %s
+                """.formatted(
+                order.getCustomerName(),
+                order.getReference(),
+                buildItemsTable(order)));
+    }
+
+    private String buildCollectedHtml(Order order) {
+        return wrapLayout(order, """
+                <h2 style="color:#2C1810;margin-top:0">Merci pour votre visite ! ✨</h2>
+                <p>Bonjour %s,</p>
+                <p>Votre commande <strong>%s</strong> a bien été retirée en boutique. Merci de votre confiance !</p>
+                <p style="color:#666">Nous espérons vous revoir bientôt chez Piercing by Samar.</p>
+                %s
+                """.formatted(
+                order.getCustomerName(),
+                order.getReference(),
+                buildItemsTable(order)));
+    }
+
     private String buildItemsTable(Order order) {
+        boolean isClickCollect = "CLICK_COLLECT".equals(order.getOrderType().name());
         StringBuilder rows = new StringBuilder();
         for (OrderItem item : order.getItems()) {
             String label = item.getSnapshotVariantLabel() != null && !item.getSnapshotVariantLabel().isBlank()
                     ? " — " + item.getSnapshotVariantLabel()
                     : "";
+            String priceStr = isClickCollect
+                    ? (item.getTotalCents() / 100) + " MAD"
+                    : String.format("%.2f €", item.getTotalCents() / 100.0);
             rows.append("""
                     <tr>
                       <td style="padding:8px 0;border-bottom:1px solid #f0ece8">%s%s × %d</td>
-                      <td style="padding:8px 0;border-bottom:1px solid #f0ece8;text-align:right">%.2f €</td>
+                      <td style="padding:8px 0;border-bottom:1px solid #f0ece8;text-align:right">%s</td>
                     </tr>
                     """.formatted(
-                    item.getSnapshotProductName(), label, item.getQuantity(),
-                    item.getTotalCents() / 100.0));
+                    item.getSnapshotProductName(), label, item.getQuantity(), priceStr));
         }
+
+        String totalStr = isClickCollect
+                ? (order.getTotalCents() / 100) + " MAD"
+                : String.format("%.2f €", order.getTotalCents() / 100.0);
+        String totalLabel = isClickCollect ? "À payer en boutique" : "Total payé";
 
         return """
                 <table style="width:100%%;border-collapse:collapse;margin:16px 0">
@@ -174,12 +233,12 @@ public class MailService {
                   <tbody>%s</tbody>
                   <tfoot>
                     <tr>
-                      <td style="padding-top:12px;font-weight:700">Total</td>
-                      <td style="padding-top:12px;font-weight:700;text-align:right">%.2f €</td>
+                      <td style="padding-top:12px;font-weight:700">%s</td>
+                      <td style="padding-top:12px;font-weight:700;text-align:right">%s</td>
                     </tr>
                   </tfoot>
                 </table>
-                """.formatted(rows, order.getTotalCents() / 100.0);
+                """.formatted(rows, totalLabel, totalStr);
     }
 
     private String wrapLayout(Order order, String content) {
