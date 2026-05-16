@@ -21,12 +21,13 @@ public class ProductController {
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String material,
-            @RequestParam(required = false) Boolean nickelFree
+            @RequestParam(required = false) Boolean nickelFree,
+            @RequestParam(defaultValue = "newest") String sort
     ) {
         if (categoryId != null || material != null || nickelFree != null) {
-            return ResponseEntity.ok(productService.getWithFilters(categoryId, material, nickelFree, page, size));
+            return ResponseEntity.ok(productService.getWithFilters(categoryId, material, nickelFree, page, size, sort));
         }
-        return ResponseEntity.ok(productService.getAll(page, size));
+        return ResponseEntity.ok(productService.getAll(page, size, sort));
     }
 
     @GetMapping("/search")

@@ -82,7 +82,7 @@ class StripeServiceTest {
         try (MockedStatic<Session> sessionStatic = mockStatic(Session.class)) {
             sessionStatic.when(() -> Session.create(any(SessionCreateParams.class))).thenReturn(mockSession);
 
-            StripeCheckoutResponse response = stripeService.createCheckoutSession("PBS-2026-0001");
+            StripeCheckoutResponse response = stripeService.createCheckoutSession("PBS-2026-0001", "EUR");
 
             assertThat(response.checkoutUrl()).isEqualTo("https://checkout.stripe.com/pay/cs_test_123");
             assertThat(shippingOrder.getStripeSessionId()).isEqualTo("cs_test_123");
@@ -101,7 +101,7 @@ class StripeServiceTest {
 
         when(orderRepository.findByReference("PBS-2026-0002")).thenReturn(Optional.of(cnc));
 
-        assertThatThrownBy(() -> stripeService.createCheckoutSession("PBS-2026-0002"))
+        assertThatThrownBy(() -> stripeService.createCheckoutSession("PBS-2026-0002", "EUR"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Click & Collect");
     }
@@ -111,7 +111,7 @@ class StripeServiceTest {
         shippingOrder.setStatus(OrderStatus.PAID);
         when(orderRepository.findByReference("PBS-2026-0001")).thenReturn(Optional.of(shippingOrder));
 
-        assertThatThrownBy(() -> stripeService.createCheckoutSession("PBS-2026-0001"))
+        assertThatThrownBy(() -> stripeService.createCheckoutSession("PBS-2026-0001", "EUR"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("déjà payée");
     }
@@ -120,7 +120,7 @@ class StripeServiceTest {
     void createCheckoutSession_withUnknownReference_shouldThrowNotFound() {
         when(orderRepository.findByReference("UNKNOWN")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> stripeService.createCheckoutSession("UNKNOWN"))
+        assertThatThrownBy(() -> stripeService.createCheckoutSession("UNKNOWN", "EUR"))
                 .isInstanceOf(NotFoundException.class);
     }
 

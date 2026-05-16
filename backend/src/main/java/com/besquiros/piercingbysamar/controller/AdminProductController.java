@@ -33,6 +33,11 @@ public class AdminProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.create(request));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDetailResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getById(id));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ProductDetailResponse> update(@PathVariable Long id,
                                                         @RequestBody UpdateProductRequest request) {

@@ -22,7 +22,9 @@ public class StripeController {
     @PostMapping("/checkout")
     public ResponseEntity<StripeCheckoutResponse> createCheckout(
             @Valid @RequestBody StripeCheckoutRequest request) {
-        return ResponseEntity.ok(stripeService.createCheckoutSession(request.orderReference()));
+        return ResponseEntity.ok(stripeService.createCheckoutSession(
+                request.orderReference(),
+                request.displayCurrency()));
     }
 
     /**

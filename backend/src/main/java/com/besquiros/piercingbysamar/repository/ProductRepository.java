@@ -27,7 +27,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> searchByName(@Param("q") String query, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.active = true " +
-           "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
+           "AND (:categoryId IS NULL OR p.category.id = :categoryId " +
+           "     OR (p.category.parent IS NOT NULL AND p.category.parent.id = :categoryId)) " +
            "AND (:material IS NULL OR p.material = :material) " +
            "AND (:nickelFree IS NULL OR p.nickelFree = :nickelFree)")
     Page<Product> findWithFilters(

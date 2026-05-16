@@ -4,6 +4,7 @@ import com.besquiros.piercingbysamar.entity.enums.Material;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -79,4 +80,8 @@ public class Product {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    /** Calculé en SQL pour permettre le tri par prix via Pageable. */
+    @Formula("(SELECT MIN(v.price_cents) FROM product_variants v WHERE v.product_id = id AND v.stock > 0)")
+    private Integer minPriceCents;
 }

@@ -26,6 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StripeService {
 
+    // Taux de secours si le service de change est indisponible
+    private static final double FALLBACK_MAD_TO_EUR = 0.0926;
+
     @Value("${stripe.webhook-secret}")
     private String webhookSecret;
 
@@ -37,9 +40,13 @@ public class StripeService {
 
     private final OrderRepository orderRepository;
     private final MailService mailService;
+    private final ExchangeRateService exchangeRateService;
+
+    // Devises supportées par Stripe pour le paiement direct
+    private static final java.util.Set<String> STRIPE_SUPPORTED = java.util.Set.of("EUR", "USD", "GBP", "CAD", "CHF");
 
     @Transactional
-    public StripeCheckoutResponse createCheckoutSession(String orderReference) {
+    public StripeCheckoutResponse createCheckoutSession(String orderReference, String displayCurrency) {
         Order order = orderRepository.findByReference(orderReference)
                 .orElseThrow(() -> new NotFoundException("Commande introuvable : " + orderReference));
 
@@ -50,12 +57,26 @@ public class StripeService {
             throw new BadRequestException("Cette commande est déjà payée");
         }
 
+        // Si la devise affichée est supportée par Stripe, on charge directement dedans.
+        // MAD n'est pas supporté par Stripe → fallback EUR.
+        final String stripeCurrency;
+        final boolean directCharge;
+        if (displayCurrency != null && STRIPE_SUPPORTED.contains(displayCurrency.toUpperCase())) {
+            stripeCurrency = displayCurrency.toLowerCase();
+            directCharge = true;
+        } else {
+            stripeCurrency = "eur";
+            directCharge = false;
+        }
+
         List<SessionCreateParams.LineItem> lineItems = order.getItems().stream()
                 .map(item -> SessionCreateParams.LineItem.builder()
                         .setQuantity((long) item.getQuantity())
                         .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-                                .setCurrency(order.getCurrency().toLowerCase())
-                                .setUnitAmount((long) item.getUnitPriceCents())
+                                .setCurrency(stripeCurrency)
+                                .setUnitAmount(directCharge
+                                        ? madCentimesToCurrencyCents(item.getUnitPriceCents(), stripeCurrency)
+                                        : madCentimesToEurCents(item.getUnitPriceCents()))
                                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                         .setName(item.getSnapshotProductName())
                                         .setDescription(item.getSnapshotVariantLabel())
@@ -119,5 +140,22 @@ public class StripeService {
                 log.info("Commande {} marquée comme PAID via Stripe", orderReference);
             }, () -> log.warn("Commande introuvable pour le webhook Stripe : {}", orderReference));
         }
+    }
+
+    /** Convertit des centimes MAD dans la devise cible (EUR ou USD). */
+    private long madCentimesToCurrencyCents(int madCentimes, String targetCurrency) {
+        double rate = switch (targetCurrency.toLowerCase()) {
+            case "usd" -> exchangeRateService != null ? exchangeRateService.getMadToUsd() : 0.099;
+            default    -> exchangeRateService != null ? exchangeRateService.getMadToEur() : FALLBACK_MAD_TO_EUR;
+        };
+        return Math.max(1L, Math.round(madCentimes * rate));
+    }
+
+    /** Convertit des centimes MAD en centimes EUR pour Stripe (MAD non supporté). */
+    private long madCentimesToEurCents(int madCentimes) {
+        double rate = exchangeRateService != null
+                ? exchangeRateService.getMadToEur()
+                : FALLBACK_MAD_TO_EUR;
+        return Math.max(1L, Math.round(madCentimes * rate));
     }
 }

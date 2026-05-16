@@ -51,7 +51,7 @@ class ProductControllerIT {
     @Test
     void getAll_withoutFilters_shouldReturn200WithPage() throws Exception {
         PageResponse<ProductSummaryResponse> page = new PageResponse<>(List.of(summaryResponse()), 0, 12, 1, 1, true);
-        when(productService.getAll(0, 12)).thenReturn(page);
+        when(productService.getAll(0, 12, "newest")).thenReturn(page);
 
         mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
@@ -62,13 +62,13 @@ class ProductControllerIT {
     @Test
     void getAll_withFilters_shouldCallFilteredMethod() throws Exception {
         PageResponse<ProductSummaryResponse> page = new PageResponse<>(List.of(summaryResponse()), 0, 12, 1, 1, true);
-        when(productService.getWithFilters(eq(7L), eq("TITANIUM"), isNull(), eq(0), eq(12))).thenReturn(page);
+        when(productService.getWithFilters(eq(7L), eq("TITANIUM"), isNull(), eq(0), eq(12), eq("newest"))).thenReturn(page);
 
         mockMvc.perform(get("/api/products").param("categoryId", "7").param("material", "TITANIUM"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].material").value("TITANIUM"));
 
-        verify(productService).getWithFilters(7L, "TITANIUM", null, 0, 12);
+        verify(productService).getWithFilters(7L, "TITANIUM", null, 0, 12, "newest");
     }
 
     @Test

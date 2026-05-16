@@ -28,13 +28,15 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
 }
 
 body {
   font-family: var(--font-sans);
+  font-size: 1.0625rem; /* 17px — lisibilité améliorée tout en conservant l'élégance */
   background-color: var(--color-background);
   color: var(--color-text);
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -108,7 +110,7 @@ img, video {
     @apply w-full px-4 py-3 rounded-xl border border-[--color-border]
            bg-white text-[--color-text] placeholder-[--color-text-muted]
            outline-none transition-all duration-200
-           focus:border-[--color-primary] focus:ring-2 focus:ring-[--color-primary]/20;
+           focus:border-primary focus:ring-2 focus:ring-primary/20;
   }
 
   /* Section title */
@@ -130,7 +132,7 @@ img, video {
 
   /* Circle catégorie */
   .category-circle {
-    @apply flex flex-col items-center gap-2 cursor-pointer group shrink-0;
+    @apply flex flex-col items-center gap-2 cursor-pointer shrink-0;
   }
 
   .category-circle-img {

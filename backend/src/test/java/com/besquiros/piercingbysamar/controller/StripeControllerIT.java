@@ -37,10 +37,10 @@ class StripeControllerIT {
 
     @Test
     void createCheckout_withValidReference_shouldReturn200WithUrl() throws Exception {
-        StripeCheckoutRequest request = new StripeCheckoutRequest("PBS-2026-0001");
+        StripeCheckoutRequest request = new StripeCheckoutRequest("PBS-2026-0001", "EUR");
         StripeCheckoutResponse response = new StripeCheckoutResponse("https://checkout.stripe.com/pay/cs_test_123");
 
-        when(stripeService.createCheckoutSession("PBS-2026-0001")).thenReturn(response);
+        when(stripeService.createCheckoutSession("PBS-2026-0001", any())).thenReturn(response);
 
         mockMvc.perform(post("/api/stripe/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -51,7 +51,7 @@ class StripeControllerIT {
 
     @Test
     void createCheckout_withBlankReference_shouldReturn400() throws Exception {
-        StripeCheckoutRequest request = new StripeCheckoutRequest("");
+        StripeCheckoutRequest request = new StripeCheckoutRequest("", null);
 
         mockMvc.perform(post("/api/stripe/checkout")
                         .contentType(MediaType.APPLICATION_JSON)

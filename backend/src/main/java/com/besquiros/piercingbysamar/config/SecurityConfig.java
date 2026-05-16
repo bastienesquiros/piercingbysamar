@@ -49,6 +49,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/orders/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/stripe/checkout").permitAll()
+                // Taux de change public
+                .requestMatchers(HttpMethod.GET, "/api/exchange-rates").permitAll()
                 // Swagger (dev)
                 .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                 // Tout le reste → admin

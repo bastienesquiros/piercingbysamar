@@ -33,14 +33,14 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
 
-    public PageResponse<ProductSummaryResponse> getAll(int page, int size) {
-        Page<Product> result = productRepository.findByActiveTrue(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    public PageResponse<ProductSummaryResponse> getAll(int page, int size, String sort) {
+        Page<Product> result = productRepository.findByActiveTrue(PageRequest.of(page, size, resolveSort(sort)));
         return toPageResponse(result);
     }
 
-    public PageResponse<ProductSummaryResponse> getWithFilters(Long categoryId, String material, Boolean nickelFree, int page, int size) {
+    public PageResponse<ProductSummaryResponse> getWithFilters(Long categoryId, String material, Boolean nickelFree, int page, int size, String sort) {
         Material mat = material != null ? Material.valueOf(material.toUpperCase()) : null;
-        Page<Product> result = productRepository.findWithFilters(categoryId, mat, nickelFree, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        Page<Product> result = productRepository.findWithFilters(categoryId, mat, nickelFree, PageRequest.of(page, size, resolveSort(sort)));
         return toPageResponse(result);
     }
 
@@ -52,6 +52,12 @@ public class ProductService {
     public ProductDetailResponse getBySlug(String slug) {
         Product product = productRepository.findBySlugAndActiveTrue(slug)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable : " + slug));
+        return productMapper.toDetail(product);
+    }
+
+    public ProductDetailResponse getById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Produit introuvable : " + id));
         return productMapper.toDetail(product);
     }
 
@@ -141,6 +147,14 @@ public class ProductService {
     public PageResponse<ProductSummaryResponse> getAllAdmin(int page, int size) {
         Page<Product> result = productRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
         return toPageResponse(result);
+    }
+
+    private Sort resolveSort(String sort) {
+        return switch (sort == null ? "newest" : sort) {
+            case "price_asc"  -> Sort.by("minPriceCents").ascending();
+            case "price_desc" -> Sort.by("minPriceCents").descending();
+            default           -> Sort.by("createdAt").descending(); // newest
+        };
     }
 
     private PageResponse<ProductSummaryResponse> toPageResponse(Page<Product> page) {

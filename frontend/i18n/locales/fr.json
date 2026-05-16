@@ -7,10 +7,24 @@
   },
   "home": {
     "hero_title": "Bijoux & Piercings",
-    "hero_subtitle": "Titanium ASTM F136 · Acier chirurgical · Nickel Free",
-    "shop_by": "Shopper par catégorie",
+    "hero_subtitle": "Titanium ASTM F136 · Acier chirurgical · Nickel Free · Qualité premium",
+    "shop_by": "Nos piercings",
     "new_arrivals": "Nouveautés",
-    "view_all": "Voir tout"
+    "view_all": "Voir le catalogue",
+    "view_catalogue": "Voir tout le catalogue"
+  },
+  "categories": {
+    "oreille": "Oreille",
+    "nez": "Nez",
+    "labret": "Lèvres",
+    "nombril": "Nombril",
+    "lobe": "Lobe",
+    "helix": "Hélix",
+    "conch": "Conch",
+    "daith": "Daith",
+    "tragus": "Tragus",
+    "narine": "Narine",
+    "septum": "Septum"
   },
   "product": {
     "add_to_cart": "Ajouter au panier",
@@ -32,6 +46,8 @@
   "checkout": {
     "shipping": "Livraison à domicile",
     "click_collect": "Click & Collect",
+    "click_collect_sub": "Retrait Marrakech · Liquide ou carte",
+    "click_collect_mad_only": "Paiement sur place en dirhams (MAD) uniquement",
     "pay": "Payer",
     "your_info": "Vos informations"
   },
@@ -39,10 +55,33 @@
     "confirmed": "Commande confirmée",
     "reference": "Référence"
   },
+  "catalogue": {
+    "filters": "Filtres",
+    "show_filters": "Afficher les filtres",
+    "hide_filters": "Masquer les filtres",
+    "category": "Catégorie",
+    "all": "Tous",
+    "material": "Matériau",
+    "nickel_free_only": "Nickel Free uniquement",
+    "reset": "Réinitialiser",
+    "results_for": "Résultats pour",
+    "no_results": "Aucun produit trouvé.",
+    "view_all_products": "Voir tous les produits",
+    "products_count": "{n} produit | {n} produits",
+    "sort_newest": "Plus récents",
+    "sort_price_asc": "Prix croissant",
+    "sort_price_desc": "Prix décroissant"
+  },
   "footer": {
     "legal": "Mentions légales",
     "cgv": "CGV",
     "privacy": "Confidentialité",
-    "contact": "Contact"
+    "contact": "Contact",
+    "legal_section": "Légal",
+    "see_address": "Notre adresse",
+    "secure_payment": "Paiement sécurisé",
+    "rights": "Tous droits réservés.",
+    "placements": "{n} placements",
+    "discover": "Découvrir"
   }
 }

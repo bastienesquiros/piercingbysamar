@@ -7,10 +7,24 @@
   },
   "home": {
     "hero_title": "Jewelry & Piercings",
-    "hero_subtitle": "ASTM F136 Titanium · Surgical Steel · Nickel Free",
-    "shop_by": "Shop by category",
+    "hero_subtitle": "ASTM F136 Titanium · Surgical Steel · Nickel Free · Premium quality",
+    "shop_by": "Our piercings",
     "new_arrivals": "New Arrivals",
-    "view_all": "View all"
+    "view_all": "View catalogue",
+    "view_catalogue": "View all products"
+  },
+  "categories": {
+    "oreille": "Ear",
+    "nez": "Nose",
+    "labret": "Lip",
+    "nombril": "Navel",
+    "lobe": "Lobe",
+    "helix": "Helix",
+    "conch": "Conch",
+    "daith": "Daith",
+    "tragus": "Tragus",
+    "narine": "Nostril",
+    "septum": "Septum"
   },
   "product": {
     "add_to_cart": "Add to cart",
@@ -32,6 +46,8 @@
   "checkout": {
     "shipping": "Home delivery",
     "click_collect": "Click & Collect",
+    "click_collect_sub": "Pick up in Marrakech · Cash or card",
+    "click_collect_mad_only": "In-store payment in Moroccan dirhams (MAD) only",
     "pay": "Pay",
     "your_info": "Your information"
   },
@@ -39,10 +55,33 @@
     "confirmed": "Order confirmed",
     "reference": "Reference"
   },
+  "catalogue": {
+    "filters": "Filters",
+    "show_filters": "Show filters",
+    "hide_filters": "Hide filters",
+    "category": "Category",
+    "all": "All",
+    "material": "Material",
+    "nickel_free_only": "Nickel Free only",
+    "reset": "Reset",
+    "results_for": "Results for",
+    "no_results": "No products found.",
+    "view_all_products": "View all products",
+    "products_count": "{n} product | {n} products",
+    "sort_newest": "Newest",
+    "sort_price_asc": "Price: low to high",
+    "sort_price_desc": "Price: high to low"
+  },
   "footer": {
     "legal": "Legal notice",
-    "cgv": "Terms",
+    "cgv": "Terms & Conditions",
     "privacy": "Privacy",
-    "contact": "Contact"
+    "contact": "Contact",
+    "legal_section": "Legal",
+    "see_address": "Our address",
+    "secure_payment": "Secure payment",
+    "rights": "All rights reserved.",
+    "placements": "{n} placements",
+    "discover": "Explore"
   }
 }

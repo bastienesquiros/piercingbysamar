@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@nuxt/image',
     '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/i18n',
     '@nuxtjs/seo',
