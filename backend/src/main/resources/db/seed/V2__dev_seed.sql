@@ -1,0 +1,197 @@
+-- ============================================================
+-- V2 - Seed données de développement (profil dev uniquement)
+-- ============================================================
+
+-- ── Categories ──────────────────────────────────────────────
+INSERT INTO categories (id, parent_id, name, slug, description, active) VALUES
+    -- Parents
+    (1,  NULL, 'Oreille',  'oreille',  'Piercings pour l''oreille',        true),
+    (2,  NULL, 'Nez',      'nez',      'Piercings pour le nez',            true),
+    (3,  NULL, 'Labret',   'labret',   'Piercings pour les lèvres',        true),
+    (4,  NULL, 'Nombril',  'nombril',  'Piercings pour le nombril',        true),
+    (5,  NULL, 'Septum',   'septum',   'Piercings septum',                 true),
+    -- Sous-catégories Oreille
+    (6,  1, 'Lobe',    'lobe',    'Piercings pour le lobe',           true),
+    (7,  1, 'Hélix',   'helix',   'Piercings pour l''hélix',          true),
+    (8,  1, 'Conch',   'conch',   'Piercings pour le conch',          true),
+    (9,  1, 'Daith',   'daith',   'Piercings pour le daith',          true),
+    (10, 1, 'Tragus',  'tragus',  'Piercings pour le tragus',         true),
+    -- Sous-catégories Nez
+    (11, 2, 'Narine',  'narine',  'Piercings pour la narine',         true);
+
+SELECT setval('categories_id_seq', 11);
+
+-- ── Tags ─────────────────────────────────────────────────────
+INSERT INTO tags (id, name, slug) VALUES
+    (1, 'Bestseller',    'bestseller'),
+    (2, 'Nouveauté',     'nouveaute'),
+    (3, 'Titane',        'titane'),
+    (4, 'Or',            'or'),
+    (5, 'Argent',        'argent'),
+    (6, 'Nickel Free',   'nickel-free'),
+    (7, 'Serti',         'serti'),
+    (8, 'Minimaliste',   'minimaliste');
+
+SELECT setval('tags_id_seq', 8);
+
+-- ── Users ────────────────────────────────────────────────────
+-- Mot de passe : Admin1234!  (bcrypt $2a$12$...)
+INSERT INTO users (id, email, password_hash, role) VALUES
+    (1, 'admin@piercingbysamar.com', '$2a$12$hgKSFqfBYFMlLQnmBelmBuPfxPAkPvJ4fHaOtR9QTVfheRVWzjRdK', 'ADMIN');
+
+SELECT setval('users_id_seq', 1);
+
+-- ── Products ─────────────────────────────────────────────────
+INSERT INTO products (id, category_id, name, slug, description, material, nickel_free, meta_title, meta_description, active) VALUES
+    (1, 7, 'Anneau Segment Clicker Titanium',
+        'anneau-segment-clicker-titanium',
+        'Anneau segment clicker en titane ASTM F136. Idéal pour l''hélix, le daith ou le conch. Ouverture facile par pression.',
+        'TITANIUM', true,
+        'Anneau Segment Clicker Titanium | Piercing by Samar',
+        'Anneau segment clicker en titane ASTM F136, nickel free. Disponible en gold et silver.',
+        true),
+    (2, 10, 'Labret Flat Back Titanium',
+        'labret-flat-back-titanium',
+        'Labret à dos plat en titane ASTM F136. Confortable pour le tragus, le lobe ou le labret. Filetage interne.',
+        'TITANIUM', true,
+        'Labret Flat Back Titanium | Piercing by Samar',
+        'Labret dos plat titane ASTM F136, filetage interne. Nickel free, disponible en plusieurs tailles.',
+        true),
+    (3, 5, 'Anneau Clicker Serti Zirconiums',
+        'anneau-clicker-serti-zirconiums',
+        'Anneau clicker serti de zirconiums en titane ASTM F136. Élégant et résistant, parfait pour le septum.',
+        'TITANIUM', true,
+        'Anneau Clicker Serti Zirconiums Septum | Piercing by Samar',
+        'Anneau clicker septum en titane, serti de zirconiums. Hypoallergénique, nickel free.',
+        true),
+    (4, 11, 'Nostril Stud Titanium',
+        'nostril-stud-titanium',
+        'Stud narine en titane ASTM F136 avec embout boule. Léger, discret et hypoallergénique.',
+        'TITANIUM', true,
+        'Nostril Stud Titanium | Piercing by Samar',
+        'Stud narine en titane ASTM F136. Nickel free, disponible en gold et silver.',
+        true),
+    (5, 4, 'Banana Bell Nombril Acier',
+        'banana-bell-nombril-acier',
+        'Banana bell pour nombril en acier chirurgical 316L. Pendentif étoile serti. Résistant et élégant.',
+        'STEEL', false,
+        'Banana Bell Nombril Acier Chirurgical | Piercing by Samar',
+        'Banana bell nombril en acier chirurgical 316L, pendentif étoile. Disponible en silver et gold.',
+        true),
+    (6, 8, 'Anneau Conch Titanium Pave',
+        'anneau-conch-titanium-pave',
+        'Anneau pour conch en titane pavé de zirconiums. Effet maximaliste et sophistiqué.',
+        'TITANIUM', true,
+        'Anneau Conch Pavé Zirconiums | Piercing by Samar',
+        'Anneau conch en titane ASTM F136, pavé de zirconiums. Nickel free.',
+        true);
+
+SELECT setval('products_id_seq', 6);
+
+-- ── Product Variants ─────────────────────────────────────────
+INSERT INTO product_variants (id, product_id, sku, size, color, price_cents, stock, active) VALUES
+    -- Anneau Segment Clicker Titanium (produit 1)
+    (1,  1, 'ASC-TI-6-GOLD',   '6mm',  'Gold',   2490, 15, true),
+    (2,  1, 'ASC-TI-6-SIL',    '6mm',  'Silver', 2490, 20, true),
+    (3,  1, 'ASC-TI-8-GOLD',   '8mm',  'Gold',   2690, 10, true),
+    (4,  1, 'ASC-TI-8-SIL',    '8mm',  'Silver', 2690, 12, true),
+    (5,  1, 'ASC-TI-10-GOLD',  '10mm', 'Gold',   2890, 5,  true),
+    -- Labret Flat Back (produit 2)
+    (6,  2, 'LFB-TI-6-GOLD',   '6mm',  'Gold',   1990, 25, true),
+    (7,  2, 'LFB-TI-6-SIL',    '6mm',  'Silver', 1990, 30, true),
+    (8,  2, 'LFB-TI-8-GOLD',   '8mm',  'Gold',   2190, 18, true),
+    (9,  2, 'LFB-TI-8-SIL',    '8mm',  'Silver', 2190, 22, true),
+    (10, 2, 'LFB-TI-10-GOLD',  '10mm', 'Gold',   2390, 8,  true),
+    (11, 2, 'LFB-TI-10-SIL',   '10mm', 'Silver', 2390, 10, true),
+    -- Anneau Clicker Serti Septum (produit 3)
+    (12, 3, 'ACS-TI-8-GOLD',   '8mm',  'Gold',   3490, 8,  true),
+    (13, 3, 'ACS-TI-10-GOLD',  '10mm', 'Gold',   3690, 6,  true),
+    (14, 3, 'ACS-TI-8-SIL',    '8mm',  'Silver', 3490, 9,  true),
+    -- Nostril Stud (produit 4)
+    (15, 4, 'NS-TI-6-GOLD',    '6mm',  'Gold',   1590, 30, true),
+    (16, 4, 'NS-TI-6-SIL',     '6mm',  'Silver', 1590, 35, true),
+    (17, 4, 'NS-TI-8-GOLD',    '8mm',  'Gold',   1690, 20, true),
+    -- Banana Bell Nombril (produit 5)
+    (18, 5, 'BBN-ST-10-SIL',   '10mm', 'Silver', 1890, 15, true),
+    (19, 5, 'BBN-ST-10-GOLD',  '10mm', 'Gold',   1890, 12, true),
+    (20, 5, 'BBN-ST-12-SIL',   '12mm', 'Silver', 1990, 8,  true),
+    -- Anneau Conch Pavé (produit 6)
+    (21, 6, 'ACP-TI-8-GOLD',   '8mm',  'Gold',   4290, 5,  true),
+    (22, 6, 'ACP-TI-10-GOLD',  '10mm', 'Gold',   4490, 3,  true),
+    (23, 6, 'ACP-TI-8-SIL',    '8mm',  'Silver', 4290, 4,  true),
+    -- Variante en rupture pour tester le comportement
+    (24, 2, 'LFB-TI-12-GOLD',  '12mm', 'Gold',   2590, 0,  true);
+
+SELECT setval('product_variants_id_seq', 24);
+
+-- ── Product Tags ─────────────────────────────────────────────
+INSERT INTO product_tags (product_id, tag_id) VALUES
+    (1, 1), (1, 3), (1, 6),         -- Anneau segment : bestseller, titane, nickel free
+    (2, 3), (2, 6), (2, 8),         -- Labret : titane, nickel free, minimaliste
+    (3, 1), (3, 3), (3, 6), (3, 7), -- Clicker septum : bestseller, titane, nickel free, serti
+    (4, 2), (4, 3), (4, 6), (4, 8), -- Nostril : nouveauté, titane, nickel free, minimaliste
+    (5, 1), (5, 7),                  -- Banana bell : bestseller, serti
+    (6, 2), (6, 3), (6, 6), (6, 7); -- Conch pavé : nouveauté, titane, nickel free, serti
+
+-- ── Orders ───────────────────────────────────────────────────
+INSERT INTO orders (id, reference, order_type, status, customer_email, customer_name, customer_phone,
+                    shipping_address, shipping_city, shipping_postal_code, shipping_country,
+                    subtotal_cents, shipping_cost_cents, total_cents, currency,
+                    stripe_session_id, stripe_payment_intent_id, notes) VALUES
+    -- Commande livrée (shipping France)
+    (1, 'PBS-2026-0001', 'SHIPPING', 'DELIVERED',
+        'camille.dupont@gmail.com', 'Camille Dupont', '+33612345678',
+        '12 rue des Lilas', 'Paris', '75011', 'FR',
+        4680, 490, 5170, 'EUR',
+        'cs_test_aaa111', 'pi_test_aaa111', NULL),
+    -- Commande payée en cours d''expédition (shipping Belgique)
+    (2, 'PBS-2026-0002', 'SHIPPING', 'SHIPPED',
+        'lea.martin@hotmail.be', 'Léa Martin', '+32471234567',
+        '5 avenue du Roi', 'Bruxelles', '1060', 'BE',
+        7980, 690, 8670, 'EUR',
+        'cs_test_bbb222', 'pi_test_bbb222', NULL),
+    -- Commande en attente paiement Stripe
+    (3, 'PBS-2026-0003', 'SHIPPING', 'PENDING',
+        'sofia.ali@gmail.com', 'Sofia Ali', NULL,
+        '8 Calle Mayor', 'Madrid', '28013', 'ES',
+        3490, 990, 4480, 'EUR',
+        'cs_test_ccc333', NULL, NULL),
+    -- Click & Collect prête à récupérer
+    (4, 'PBS-2026-0004', 'CLICK_COLLECT', 'READY',
+        'yasmine.benali@gmail.com', 'Yasmine Benali', '+212612345678',
+        NULL, NULL, NULL, NULL,
+        5470, 0, 5470, 'EUR',
+        NULL, NULL, 'Préférence paiement cash'),
+    -- Click & Collect récupérée
+    (5, 'PBS-2026-0005', 'CLICK_COLLECT', 'COLLECTED',
+        'nour.hassan@gmail.com', 'Nour Hassan', '+212698765432',
+        NULL, NULL, NULL, NULL,
+        1590, 0, 1590, 'EUR',
+        NULL, NULL, NULL),
+    -- Commande annulée
+    (6, 'PBS-2026-0006', 'SHIPPING', 'CANCELLED',
+        'test.cancel@gmail.com', 'Test Cancel', NULL,
+        '1 rue Test', 'Lyon', '69001', 'FR',
+        2490, 490, 2980, 'EUR',
+        'cs_test_ddd444', NULL, 'Annulée par le client');
+
+SELECT setval('orders_id_seq', 6);
+
+-- ── Order Items ──────────────────────────────────────────────
+INSERT INTO order_items (order_id, product_variant_id, snapshot_product_name, snapshot_variant_label, unit_price_cents, quantity, total_cents) VALUES
+    -- Commande 1 (subtotal 4680) : 1x Anneau Segment Gold 6mm + 1x Labret Silver 8mm
+    (1, 1,  'Anneau Segment Clicker Titanium', '6mm - Gold',   2490, 1, 2490),
+    (1, 9,  'Labret Flat Back Titanium',       '8mm - Silver', 2190, 1, 2190),
+    -- Commande 2 (subtotal 7980) : 1x Clicker Septum Gold 10mm + 1x Anneau Conch Gold 8mm
+    (2, 13, 'Anneau Clicker Serti Zirconiums', '10mm - Gold',  3690, 1, 3690),
+    (2, 21, 'Anneau Conch Titanium Pavé',      '8mm - Gold',   4290, 1, 4290),
+    -- Commande 3 (subtotal 3490) : 1x Clicker Septum Silver 8mm
+    (3, 14, 'Anneau Clicker Serti Zirconiums', '8mm - Silver', 3490, 1, 3490),
+    -- Commande 4 (subtotal 5470) : 1x Labret Gold 6mm + 1x Nostril Gold 6mm + 1x Banana Bell Silver
+    (4, 6,  'Labret Flat Back Titanium',       '6mm - Gold',   1990, 1, 1990),
+    (4, 15, 'Nostril Stud Titanium',           '6mm - Gold',   1590, 1, 1590),
+    (4, 18, 'Banana Bell Nombril Acier',       '10mm - Silver',1890, 1, 1890),
+    -- Commande 5 (subtotal 1590) : 1x Nostril Stud Silver 6mm
+    (5, 16, 'Nostril Stud Titanium',           '6mm - Silver', 1590, 1, 1590),
+    -- Commande 6 (subtotal 2490) : 1x Anneau Segment Gold 6mm (annulée)
+    (6, 1,  'Anneau Segment Clicker Titanium', '6mm - Gold',   2490, 1, 2490);
