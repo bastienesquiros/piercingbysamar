@@ -4,7 +4,20 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold text-gray-800">Commandes</h2>
-      <p class="text-sm text-gray-500">{{ data?.totalElements ?? 0 }} au total</p>
+    </div>
+
+    <!-- Filter -->
+    <div class="flex gap-3 flex-wrap">
+      <select v-model="filterStatus" class="input py-2 text-sm">
+        <option value="">Tous les statuts</option>
+        <option value="PENDING">En attente</option>
+        <option value="PAID">Payée</option>
+        <option value="READY">Prête (C&amp;C)</option>
+        <option value="SHIPPED">Expédiée</option>
+        <option value="DELIVERED">Livrée</option>
+        <option value="CANCELLED">Annulée</option>
+      </select>
+      <p class="text-sm text-gray-500 self-center">{{ data?.totalElements ?? 0 }} commande(s)</p>
     </div>
 
     <!-- Table -->
@@ -45,7 +58,7 @@
                   {{ order.orderType === 'SHIPPING' ? 'Livraison' : 'Click & Collect' }}
                 </span>
               </td>
-              <td class="px-5 py-3 font-semibold text-gray-800 whitespace-nowrap">{{ formatPrice(order.totalCents) }}</td>
+              <td class="px-5 py-3 font-semibold text-gray-800 whitespace-nowrap">{{ formatMad(order.totalCents) }}</td>
               <td class="px-5 py-3">
                 <StatusBadge :status="order.status" />
               </td>
@@ -152,10 +165,10 @@
                   class="flex justify-between items-center text-sm bg-gray-50 rounded-xl px-4 py-3"
                 >
                   <div>
-                    <p class="text-gray-800 font-medium">{{ item.snapshotName }}</p>
-                    <p class="text-gray-400 text-xs">{{ item.variantSku }} · × {{ item.quantity }}</p>
+                    <p class="text-gray-800 font-medium">{{ item.snapshotProductName }}</p>
+                    <p class="text-gray-400 text-xs">{{ item.snapshotVariantLabel || '—' }} · × {{ item.quantity }}</p>
                   </div>
-                  <p class="font-semibold text-gray-800">{{ formatPrice(item.lineTotalCents) }}</p>
+                  <p class="font-semibold text-gray-800">{{ formatMad(item.totalCents) }}</p>
                 </li>
               </ul>
             </div>
@@ -163,13 +176,13 @@
             <!-- Total -->
             <div class="bg-gray-50 rounded-xl p-4">
               <div class="flex justify-between text-sm text-gray-500 mb-1">
-                <span>Sous-total</span><span>{{ formatPrice(selectedOrder.subtotalCents) }}</span>
+                <span>Sous-total</span><span>{{ formatMad(selectedOrder.subtotalCents) }}</span>
               </div>
               <div class="flex justify-between text-sm text-gray-500 mb-2">
-                <span>Livraison</span><span>{{ formatPrice(selectedOrder.shippingCostCents) }}</span>
+                <span>Livraison</span><span>{{ formatMad(selectedOrder.shippingCostCents) }}</span>
               </div>
               <div class="flex justify-between font-semibold text-gray-800 border-t border-gray-200 pt-2">
-                <span>Total</span><span>{{ formatPrice(selectedOrder.totalCents) }}</span>
+                <span>Total</span><span>{{ formatMad(selectedOrder.totalCents) }}</span>
               </div>
             </div>
 
@@ -193,19 +206,24 @@ definePageMeta({ layout: 'admin', middleware: 'admin' })
 const auth = useAuthStore()
 const { get, post, patch } = useApi()
 const headers = computed(() => auth.authHeader)
+const { success, error: toastError } = useToast()
 
 const page = ref(0)
+const filterStatus = ref('')
 
 const { data, pending, refresh } = await useAsyncData(
   'admin-orders',
-  () => get<PageResponse<Order>>('/api/admin/orders', {
-    headers: headers.value,
-    query: { page: page.value, size: 20 },
-  }),
-  { watch: [page] }
+  () => {
+    const query: Record<string, unknown> = { page: page.value, size: 20 }
+    if (filterStatus.value) query.status = filterStatus.value
+    return get<PageResponse<Order>>('/api/admin/orders', { headers: headers.value, query })
+  },
+  { watch: [page, filterStatus] }
 )
 
 const orders = computed(() => data.value?.content ?? [])
+
+watch(filterStatus, () => { page.value = 0 })
 
 // ── Detail panel ───────────────────────────────────────────────
 const selectedOrder = ref<Order | null>(null)
@@ -242,15 +260,17 @@ async function updateStatus(order: Order, status: string) {
     )
     selectedOrder.value = updated
     refresh()
-  } catch { /* ignore */ }
+    success('Statut mis à jour.')
+  } catch { toastError('Erreur lors de la mise à jour du statut.') }
   finally {
     updatingStatus.value = false
     statusTarget.value = null
   }
 }
 
-function formatPrice(cents: number) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+function formatMad(cents: number) {
+  if (!cents && cents !== 0) return '—'
+  return Math.round(cents / 100) + ' MAD'
 }
 
 function formatDate(iso: string) {

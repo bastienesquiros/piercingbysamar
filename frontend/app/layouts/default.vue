@@ -6,14 +6,22 @@
     </main>
     <AppFooter />
     <CartDrawer />
+    <ToastContainer />
   </div>
 </template>
 
 <script setup lang="ts">
 const currencyStore = useCurrencyStore()
 const config = useRuntimeConfig()
+const { error: toastError } = useToast()
 
 onMounted(() => {
   currencyStore.fetchRates(config.public.apiBase as string)
+})
+
+onErrorCaptured((err) => {
+  console.error('[app error]', err)
+  toastError('Une erreur inattendue est survenue.')
+  return false
 })
 </script>

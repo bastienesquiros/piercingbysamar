@@ -3,6 +3,7 @@ package com.besquiros.piercingbysamar.controller;
 import com.besquiros.piercingbysamar.dto.request.CreateProductRequest;
 import com.besquiros.piercingbysamar.dto.request.CreateVariantRequest;
 import com.besquiros.piercingbysamar.dto.request.UpdateProductRequest;
+import com.besquiros.piercingbysamar.dto.request.UpdateVariantRequest;
 import com.besquiros.piercingbysamar.dto.response.PageResponse;
 import com.besquiros.piercingbysamar.dto.response.ProductDetailResponse;
 import com.besquiros.piercingbysamar.dto.response.ProductSummaryResponse;
@@ -23,9 +24,11 @@ public class AdminProductController {
     @GetMapping
     public ResponseEntity<PageResponse<ProductSummaryResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean active
     ) {
-        return ResponseEntity.ok(productService.getAllAdmin(page, size));
+        return ResponseEntity.ok(productService.getAllAdmin(page, size, name, active));
     }
 
     @PostMapping
@@ -35,7 +38,7 @@ public class AdminProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDetailResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getById(id));
+        return ResponseEntity.ok(productService.getByIdAdmin(id));
     }
 
     @PutMapping("/{id}")
@@ -60,5 +63,12 @@ public class AdminProductController {
     public ResponseEntity<Void> deleteVariant(@PathVariable Long id, @PathVariable Long variantId) {
         productService.deleteVariant(id, variantId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/variants/{variantId}")
+    public ResponseEntity<ProductDetailResponse> updateVariant(@PathVariable Long id,
+                                                               @PathVariable Long variantId,
+                                                               @Valid @RequestBody UpdateVariantRequest request) {
+        return ResponseEntity.ok(productService.updateVariant(id, variantId, request));
     }
 }

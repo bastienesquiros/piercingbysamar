@@ -25,19 +25,23 @@ public class AdminImageController {
     public ResponseEntity<ProductImageResponse> upload(
             @PathVariable Long productId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "altText", required = false) String altText,
-            @RequestParam(value = "position", defaultValue = "0") Integer position) {
+            @RequestParam(value = "altText", required = false) String altText) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable : " + productId));
 
         String url = storageService.upload(file, "products/" + productId);
 
+        // Auto-assign position = current max + 1 so images don't all start at 0
+        int nextPosition = imageRepository.findMaxPositionByProductId(productId)
+                .map(max -> max + 1)
+                .orElse(0);
+
         ProductImage image = ProductImage.builder()
                 .product(product)
                 .r2Url(url)
                 .altText(altText)
-                .position(position)
+                .position(nextPosition)
                 .build();
 
         ProductImage saved = imageRepository.save(image);
@@ -59,4 +63,23 @@ public class AdminImageController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{imageId}")
+    public ResponseEntity<ProductImageResponse> update(
+            @PathVariable Long productId,
+            @PathVariable Long imageId,
+            @RequestBody UpdateImageRequest body) {
+
+        ProductImage image = imageRepository.findByIdAndProductId(imageId, productId)
+                .orElseThrow(() -> new NotFoundException("Image introuvable : " + imageId));
+
+        if (body.altText() != null) image.setAltText(body.altText());
+        if (body.position() != null) image.setPosition(body.position());
+        ProductImage saved = imageRepository.save(image);
+
+        return ResponseEntity.ok(new ProductImageResponse(
+                saved.getId(), saved.getR2Url(), saved.getPosition(), saved.getAltText()));
+    }
+
+    public record UpdateImageRequest(String altText, Integer position) {}
 }

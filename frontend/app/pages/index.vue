@@ -16,6 +16,26 @@
       </div>
     </section>
 
+    <!-- Trust bar: Click & Collect + Shipping + Payment -->
+    <div class="bg-white border-b border-[--color-border]">
+      <div class="container-site">
+        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[--color-border] py-3">
+          <div class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
+            <Icon name="lucide:store" class="w-4 h-4 text-[--color-primary] shrink-0" />
+            <span>{{ $t('product.click_collect_badge') }}</span>
+          </div>
+          <div class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
+            <Icon name="lucide:truck" class="w-4 h-4 text-[--color-primary] shrink-0" />
+            <span>{{ $t('home.trust_shipping') }}</span>
+          </div>
+          <div class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
+            <Icon name="lucide:lock" class="w-4 h-4 text-[--color-primary] shrink-0" />
+            <span>{{ $t('home.trust_payment') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Shop by body area -->
     <section class="py-16">
       <div class="container-site">
@@ -27,10 +47,10 @@
             :to="localePath(`/catalogue?category=${cat.slug}`)"
             class="group relative overflow-hidden rounded-2xl aspect-square flex items-end p-4 cursor-pointer"
           >
-            <!-- Image background for Oreille, gradient for others -->
+            <!-- Image si dispo, gradient sinon -->
             <NuxtImg
-              v-if="cat.slug === 'oreille'"
-              src="/images/lobe.avif"
+              v-if="categoryImage(cat.slug)"
+              :src="categoryImage(cat.slug)!"
               :alt="cat.name"
               class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               width="400" height="400"
@@ -104,6 +124,7 @@ import type { PageResponse, ProductSummary } from '~/types'
 const localePath = useLocalePath()
 const { get } = useApi()
 const { topLevel, fetchCategories } = useCategories()
+const { categoryImage } = useCategoryImage()
 
 onMounted(() => fetchCategories())
 

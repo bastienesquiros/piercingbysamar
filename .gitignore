@@ -1,2 +1,8 @@
 .idea
 PROJECT.md
+
+# Secrets — ne jamais committer
+.env
+
+# SSL certs — générés sur le VPS par Traefik
+letsencrypt/

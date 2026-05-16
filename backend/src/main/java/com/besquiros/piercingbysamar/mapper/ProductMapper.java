@@ -67,6 +67,7 @@ public class ProductMapper {
                 minPrice,
                 maxPrice,
                 inStock,
+                product.isActive(),
                 coverUrl,
                 tagNames
         );
@@ -86,6 +87,28 @@ public class ProductMapper {
                 product.getMetaDescription(),
                 product.isActive(),
                 product.getVariants().stream().filter(ProductVariant::isActive).map(this::toVariantResponse).toList(),
+                product.getImages().stream().map(this::toImageResponse).toList(),
+                product.getTags().stream().map(t -> t.getName()).toList(),
+                product.getCreatedAt(),
+                product.getUpdatedAt()
+        );
+    }
+
+    /** Admin view: includes inactive variants */
+    public ProductDetailResponse toDetailAdmin(Product product) {
+        return new ProductDetailResponse(
+                product.getId(),
+                product.getName(),
+                product.getSlug(),
+                product.getDescription(),
+                product.getMaterial() != null ? product.getMaterial().name() : null,
+                product.isNickelFree(),
+                product.getCategory() != null ? product.getCategory().getId() : null,
+                product.getCategory() != null ? product.getCategory().getName() : null,
+                product.getMetaTitle(),
+                product.getMetaDescription(),
+                product.isActive(),
+                product.getVariants().stream().map(this::toVariantResponse).toList(),
                 product.getImages().stream().map(this::toImageResponse).toList(),
                 product.getTags().stream().map(t -> t.getName()).toList(),
                 product.getCreatedAt(),

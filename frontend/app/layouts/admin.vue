@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex">
 
-    <!-- Sidebar -->
-    <aside class="w-60 shrink-0 bg-[#1C1410] text-white flex flex-col min-h-screen">
+    <!-- Sidebar — desktop only -->
+    <aside class="hidden lg:flex w-60 shrink-0 bg-[#1C1410] text-white flex-col min-h-screen">
       <!-- Logo -->
       <div class="px-6 py-5 border-b border-white/10">
         <p class="font-serif text-lg font-semibold">
@@ -41,24 +41,46 @@
     </aside>
 
     <!-- Main -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
       <!-- Top bar -->
-      <header class="h-14 bg-white border-b border-gray-200 flex items-center px-6 shrink-0">
-        <h1 class="text-sm font-semibold text-gray-700">{{ currentPageTitle }}</h1>
+      <header class="h-14 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6 shrink-0">
+        <h1 class="text-sm font-semibold text-gray-700 truncate">{{ currentPageTitle }}</h1>
         <div class="ml-auto flex items-center gap-3">
           <NuxtLink to="/" target="_blank" class="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
             <Icon name="lucide:external-link" class="w-3.5 h-3.5" />
-            Voir le site
+            <span class="hidden sm:inline">Voir le site</span>
           </NuxtLink>
+          <!-- Mobile logout -->
+          <button class="lg:hidden text-gray-400 hover:text-gray-700" @click="logout">
+            <Icon name="lucide:log-out" class="w-4 h-4" />
+          </button>
         </div>
       </header>
 
       <!-- Page -->
-      <main class="flex-1 overflow-auto p-6">
+      <main class="flex-1 overflow-auto p-4 lg:p-6 pb-24 lg:pb-6">
         <slot />
       </main>
     </div>
   </div>
+
+  <!-- Mobile bottom nav -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 bg-[#1C1410] border-t border-white/10 z-40 flex">
+    <NuxtLink
+      v-for="item in navItems"
+      :key="item.to"
+      :to="item.to"
+      class="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors"
+      :class="isActive(item.to)
+        ? 'text-[--color-primary]'
+        : 'text-white/50 hover:text-white'"
+    >
+      <Icon :name="item.icon" class="w-5 h-5" />
+      {{ item.label }}
+    </NuxtLink>
+  </nav>
+
+  <ToastContainer />
 </template>
 
 <script setup lang="ts">
@@ -69,6 +91,7 @@ const router = useRouter()
 const navItems = [
   { to: '/admin', label: 'Dashboard', icon: 'lucide:layout-dashboard' },
   { to: '/admin/products', label: 'Produits', icon: 'lucide:package' },
+  { to: '/admin/categories', label: 'Catégories', icon: 'lucide:tag' },
   { to: '/admin/orders', label: 'Commandes', icon: 'lucide:shopping-cart' },
 ]
 
@@ -78,6 +101,7 @@ const isActive = (to: string) =>
 const currentPageTitle = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
   if (route.path.startsWith('/admin/products')) return 'Produits'
+  if (route.path.startsWith('/admin/categories')) return 'Catégories'
   if (route.path.startsWith('/admin/orders')) return 'Commandes'
   return 'Admin'
 })

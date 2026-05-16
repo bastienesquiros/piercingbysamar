@@ -17,12 +17,16 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final ExchangeRateService exchangeRateService;
 
     @Value("${app.mail.from:noreply@piercingbysamar.com}")
     private String from;
 
     @Value("${app.mail.shop-name:Piercing by Samar}")
     private String shopName;
+
+    @Value("${app.mail.whatsapp:212781570083}")
+    private String whatsappNumber;
 
     // ── Emails publics ─────────────────────────────────────────
 
@@ -173,15 +177,27 @@ public class MailService {
     }
 
     private String buildCancellationHtml(Order order) {
+        String waUrl = "https://wa.me/" + whatsappNumber + "?text=" +
+                java.net.URLEncoder.encode(
+                        "Bonjour, j'ai une question concernant ma commande " + order.getReference(),
+                        java.nio.charset.StandardCharsets.UTF_8);
         return wrapLayout(order, """
                 <h2 style="color:#2C1810;margin-top:0">Commande annulée</h2>
                 <p>Bonjour %s,</p>
                 <p>Votre commande <strong>%s</strong> a été annulée.</p>
-                <p style="color:#666">Si vous pensez qu'il s'agit d'une erreur ou si vous avez des questions, n'hésitez pas à nous contacter via WhatsApp ou par email.</p>
+                <p style="color:#666">Si vous pensez qu'il s'agit d'une erreur ou si vous avez des questions, contactez-nous directement sur WhatsApp — c'est le moyen le plus rapide pour nous joindre.</p>
+                <div style="text-align:center;margin:24px 0">
+                  <a href="%s"
+                     style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px">
+                    💬 Nous contacter sur WhatsApp
+                  </a>
+                  <p style="margin:12px 0 0;color:#999;font-size:13px">+212 7 81 57 00 83</p>
+                </div>
                 %s
                 """.formatted(
                 order.getCustomerName(),
                 order.getReference(),
+                waUrl,
                 buildItemsTable(order)));
     }
 
@@ -205,9 +221,7 @@ public class MailService {
             String label = item.getSnapshotVariantLabel() != null && !item.getSnapshotVariantLabel().isBlank()
                     ? " — " + item.getSnapshotVariantLabel()
                     : "";
-            String priceStr = isClickCollect
-                    ? (item.getTotalCents() / 100) + " MAD"
-                    : String.format("%.2f €", item.getTotalCents() / 100.0);
+            String priceStr = formatAmount(item.getTotalCents(), order.getCurrency());
             rows.append("""
                     <tr>
                       <td style="padding:8px 0;border-bottom:1px solid #f0ece8">%s%s × %d</td>
@@ -217,9 +231,7 @@ public class MailService {
                     item.getSnapshotProductName(), label, item.getQuantity(), priceStr));
         }
 
-        String totalStr = isClickCollect
-                ? (order.getTotalCents() / 100) + " MAD"
-                : String.format("%.2f €", order.getTotalCents() / 100.0);
+        String totalStr = formatAmount(order.getTotalCents(), order.getCurrency());
         String totalLabel = isClickCollect ? "À payer en boutique" : "Total payé";
 
         return """
@@ -239,6 +251,16 @@ public class MailService {
                   </tfoot>
                 </table>
                 """.formatted(rows, totalLabel, totalStr);
+    }
+
+    /** Convertit des centimes MAD dans la devise de la commande et formate pour l'affichage. */
+    private String formatAmount(int madCents, String currency) {
+        double madAmount = madCents / 100.0;
+        return switch (currency.toUpperCase()) {
+            case "EUR" -> String.format("%.2f €", madAmount * exchangeRateService.getMadToEur());
+            case "USD" -> String.format("$ %.2f", madAmount * exchangeRateService.getMadToUsd());
+            default    -> ((int) madAmount) + " MAD";
+        };
     }
 
     private String wrapLayout(Order order, String content) {

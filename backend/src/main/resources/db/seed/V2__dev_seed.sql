@@ -35,9 +35,9 @@ INSERT INTO tags (id, name, slug) VALUES
 SELECT setval('tags_id_seq', 8);
 
 -- ── Users ────────────────────────────────────────────────────
--- Mot de passe : Admin1234!  (bcrypt $2a$12$...)
+-- Mot de passe : Admin1234!
 INSERT INTO users (id, email, password_hash, role) VALUES
-    (1, 'admin@piercingbysamar.com', '$2a$12$hgKSFqfBYFMlLQnmBelmBuPfxPAkPvJ4fHaOtR9QTVfheRVWzjRdK', 'ADMIN');
+    (1, 'admin@piercingbysamar.com', '$2b$12$ThX.lVfZRQ/2LLqsLG9cve3Mbwk6NroUBVzHe6QT4QnVspdDNnn42', 'ADMIN');
 
 SELECT setval('users_id_seq', 1);
 

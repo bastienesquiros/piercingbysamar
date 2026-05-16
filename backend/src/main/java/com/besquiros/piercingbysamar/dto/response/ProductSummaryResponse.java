@@ -14,6 +14,7 @@ public record ProductSummaryResponse(
         Integer minPriceCents,
         Integer maxPriceCents,
         boolean inStock,
+        boolean active,
         String coverImageUrl,
         List<String> tags
 ) {}

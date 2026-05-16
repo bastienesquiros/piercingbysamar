@@ -6,8 +6,8 @@ import jakarta.validation.constraints.Positive;
 
 public record CreateVariantRequest(
         @NotBlank String sku,
-        String size,
-        String color,
+        @NotBlank String size,
+        @NotBlank String color,
         @NotNull @Positive Integer priceCents,
         @NotNull Integer stock
 ) {}

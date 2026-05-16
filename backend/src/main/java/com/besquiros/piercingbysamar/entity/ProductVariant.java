@@ -27,10 +27,10 @@ public class ProductVariant {
     @Column(nullable = false, unique = true, length = 100)
     private String sku;
 
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String size;
 
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String color;
 
     /** Prix en centimes (ex: 2490 = 24.90 EUR) */

@@ -83,7 +83,9 @@
                 <button
                   class="w-7 h-7 rounded-full border border-[--color-border] flex items-center justify-center
                          text-[--color-text-muted] hover:border-[--color-primary]
-                         hover:text-[--color-primary] transition-colors text-sm"
+                         hover:text-[--color-primary] transition-colors text-sm
+                         disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[--color-border] disabled:hover:text-[--color-text-muted]"
+                  :disabled="item.quantity >= item.stock"
                   @click="cart.updateQuantity(item.variantId, item.quantity + 1)"
                 >
                   <Icon name="lucide:plus" class="w-3 h-3" />

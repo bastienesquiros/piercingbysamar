@@ -15,6 +15,7 @@ export interface CartItem {
   sku: string
   price: number // cents
   quantity: number
+  stock: number
   imageUrl: string | null
 }
 
@@ -51,7 +52,7 @@ export const useCartStore = defineStore('cart', {
       const item = this.items.find((i) => i.variantId === variantId)
       if (item) {
         if (quantity <= 0) this.remove(variantId)
-        else item.quantity = quantity
+        else item.quantity = Math.min(quantity, item.stock)
       }
     },
 

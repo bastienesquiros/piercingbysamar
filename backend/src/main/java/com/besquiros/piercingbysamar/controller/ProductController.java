@@ -19,11 +19,15 @@ public class ProductController {
     public ResponseEntity<PageResponse<ProductSummaryResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String material,
             @RequestParam(required = false) Boolean nickelFree,
             @RequestParam(defaultValue = "newest") String sort
     ) {
+        if (search != null && !search.isBlank()) {
+            return ResponseEntity.ok(productService.search(search, page, size));
+        }
         if (categoryId != null || material != null || nickelFree != null) {
             return ResponseEntity.ok(productService.getWithFilters(categoryId, material, nickelFree, page, size, sort));
         }

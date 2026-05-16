@@ -86,7 +86,7 @@ class ProductServiceTest {
                 "Anneau Segment Titanium", null, null, "TITANIUM", true, null, null, null);
 
         when(productRepository.save(any())).thenReturn(product);
-        when(productMapper.toDetail(any())).thenReturn(detailResponse);
+        when(productMapper.toDetailAdmin(any())).thenReturn(detailResponse);
 
         productService.create(request);
 
@@ -101,7 +101,7 @@ class ProductServiceTest {
                 "Anneau Segment", "mon-slug-custom", null, "TITANIUM", false, null, null, null);
 
         when(productRepository.save(any())).thenReturn(product);
-        when(productMapper.toDetail(any())).thenReturn(detailResponse);
+        when(productMapper.toDetailAdmin(any())).thenReturn(detailResponse);
 
         productService.create(request);
 
@@ -117,7 +117,7 @@ class ProductServiceTest {
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(any())).thenReturn(product);
-        when(productMapper.toDetail(any())).thenReturn(detailResponse);
+        when(productMapper.toDetailAdmin(any())).thenReturn(detailResponse);
 
         productService.update(1L, request);
 
@@ -164,7 +164,7 @@ class ProductServiceTest {
         when(variantRepository.existsBySku("NEW-SKU")).thenReturn(false);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(variantRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(productMapper.toDetail(product)).thenReturn(detailResponse);
+        when(productMapper.toDetailAdmin(product)).thenReturn(detailResponse);
 
         productService.addVariant(1L, request);
 

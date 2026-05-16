@@ -42,7 +42,7 @@ class AdminProductControllerIT {
 
     private ProductSummaryResponse summary() {
         return new ProductSummaryResponse(1L, "Anneau Titanium", "anneau-titanium",
-                "TITANIUM", true, 7L, "Hélix", 2490, 2890, true, null, List.of());
+                "TITANIUM", true, 7L, "Hélix", 2490, 2890, true, true, null, List.of());
     }
 
     private ProductDetailResponse detail() {
@@ -54,7 +54,7 @@ class AdminProductControllerIT {
     @Test
     void getAll_shouldReturn200() throws Exception {
         PageResponse<ProductSummaryResponse> page = new PageResponse<>(List.of(summary()), 0, 20, 1, 1, true);
-        when(productService.getAllAdmin(0, 20)).thenReturn(page);
+        when(productService.getAllAdmin(0, 20, null, null)).thenReturn(page);
 
         mockMvc.perform(get("/api/admin/products"))
                 .andExpect(status().isOk())

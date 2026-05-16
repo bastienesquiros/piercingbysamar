@@ -3,6 +3,7 @@ package com.besquiros.piercingbysamar.controller;
 import com.besquiros.piercingbysamar.dto.request.UpdateOrderStatusRequest;
 import com.besquiros.piercingbysamar.dto.response.OrderResponse;
 import com.besquiros.piercingbysamar.dto.response.PageResponse;
+import com.besquiros.piercingbysamar.entity.enums.OrderStatus;
 import com.besquiros.piercingbysamar.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,14 @@ public class AdminOrderController {
     @GetMapping
     public ResponseEntity<PageResponse<OrderResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String status
     ) {
-        return ResponseEntity.ok(orderService.getAll(page, size));
+        OrderStatus orderStatus = null;
+        if (status != null && !status.isBlank()) {
+            try { orderStatus = OrderStatus.valueOf(status.toUpperCase()); } catch (IllegalArgumentException ignored) {}
+        }
+        return ResponseEntity.ok(orderService.getAll(page, size, orderStatus));
     }
 
     @GetMapping("/{id}")

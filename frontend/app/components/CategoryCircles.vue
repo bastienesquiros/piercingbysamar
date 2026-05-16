@@ -9,7 +9,7 @@
     >
       <div class="category-circle-img relative">
         <NuxtImg
-          :src="`/images/${cat.slug}.avif`"
+          :src="`/images/categories/${cat.slug}.avif`"
           :alt="cat.label"
           width="96"
           height="96"

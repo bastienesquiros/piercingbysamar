@@ -39,7 +39,7 @@ class ProductControllerIT {
 
     private ProductSummaryResponse summaryResponse() {
         return new ProductSummaryResponse(1L, "Anneau Titanium", "anneau-titanium",
-                "TITANIUM", true, 7L, "Hélix", 2490, 2890, true, null, List.of("Titane"));
+                "TITANIUM", true, 7L, "Hélix", 2490, 2890, true, true, null, List.of("Titane"));
     }
 
     private ProductDetailResponse detailResponse() {

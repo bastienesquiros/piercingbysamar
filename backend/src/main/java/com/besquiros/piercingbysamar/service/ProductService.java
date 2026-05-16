@@ -3,6 +3,7 @@ package com.besquiros.piercingbysamar.service;
 import com.besquiros.piercingbysamar.dto.request.CreateProductRequest;
 import com.besquiros.piercingbysamar.dto.request.CreateVariantRequest;
 import com.besquiros.piercingbysamar.dto.request.UpdateProductRequest;
+import com.besquiros.piercingbysamar.dto.request.UpdateVariantRequest;
 import com.besquiros.piercingbysamar.dto.response.PageResponse;
 import com.besquiros.piercingbysamar.dto.response.ProductDetailResponse;
 import com.besquiros.piercingbysamar.dto.response.ProductSummaryResponse;
@@ -19,6 +20,7 @@ import com.besquiros.piercingbysamar.util.SlugUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +63,12 @@ public class ProductService {
         return productMapper.toDetail(product);
     }
 
+    public ProductDetailResponse getByIdAdmin(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Produit introuvable : " + id));
+        return productMapper.toDetailAdmin(product);
+    }
+
     // ── Admin ─────────────────────────────────────────────────
 
     @Transactional
@@ -80,7 +88,7 @@ public class ProductService {
                         : null)
                 .build();
 
-        return productMapper.toDetail(productRepository.save(product));
+        return productMapper.toDetailAdmin(productRepository.save(product));
     }
 
     @Transactional
@@ -100,7 +108,7 @@ public class ProductService {
                     .orElseThrow(() -> new NotFoundException("Catégorie introuvable")));
         }
 
-        return productMapper.toDetail(productRepository.save(product));
+        return productMapper.toDetailAdmin(productRepository.save(product));
     }
 
     @Transactional
@@ -129,7 +137,7 @@ public class ProductService {
                 .build();
 
         product.getVariants().add(variantRepository.save(variant));
-        return productMapper.toDetail(product);
+        return productMapper.toDetailAdmin(product);
     }
 
     @Transactional
@@ -142,10 +150,36 @@ public class ProductService {
         variantRepository.delete(variant);
     }
 
+    @Transactional
+    public ProductDetailResponse updateVariant(Long productId, Long variantId, UpdateVariantRequest request) {
+        ProductVariant variant = variantRepository.findById(variantId)
+                .orElseThrow(() -> new NotFoundException("Variante introuvable : " + variantId));
+        if (!variant.getProduct().getId().equals(productId)) {
+            throw new BadRequestException("Cette variante n'appartient pas au produit " + productId);
+        }
+        if (!variant.getSku().equals(request.sku()) && variantRepository.existsBySku(request.sku())) {
+            throw new BadRequestException("SKU déjà utilisé : " + request.sku());
+        }
+        variant.setSku(request.sku());
+        variant.setSize(request.size());
+        variant.setColor(request.color());
+        variant.setPriceCents(request.priceCents());
+        variant.setStock(request.stock());
+        variant.setActive(request.active());
+        variantRepository.save(variant);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Produit introuvable : " + productId));
+        return productMapper.toDetailAdmin(product);
+    }
+
     // ── Admin — liste complète (actifs + inactifs) ────────────
 
-    public PageResponse<ProductSummaryResponse> getAllAdmin(int page, int size) {
-        Page<Product> result = productRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    public PageResponse<ProductSummaryResponse> getAllAdmin(int page, int size, String name, Boolean active) {
+        String nameParam = (name != null && !name.isBlank()) ? name : "";
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Product> result = active == null
+                ? productRepository.findAdminByName(nameParam, pageable)
+                : productRepository.findAdminByNameAndActive(nameParam, active, pageable);
         return toPageResponse(result);
     }
 

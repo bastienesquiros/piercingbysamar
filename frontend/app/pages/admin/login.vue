@@ -19,7 +19,7 @@
               v-model="email"
               type="email"
               class="input"
-              placeholder="admin@piercingbysamar.com"
+              placeholder="admin@admin.com"
               @keydown.enter="login"
             />
           </div>
@@ -65,9 +65,10 @@ definePageMeta({ layout: false })
 const auth = useAuthStore()
 const { post } = useApi()
 const router = useRouter()
+const localePath = useLocalePath()
 
 if (auth.isAuthenticated && auth.isAdmin) {
-  await navigateTo('/admin')
+  await navigateTo(localePath('/admin'))
 }
 
 const email = ref('')
@@ -85,7 +86,7 @@ async function login() {
       password: password.value,
     })
     auth.setAuth(res.token, res.email, res.role)
-    router.push('/admin')
+    await router.push(localePath('/admin'))
   } catch {
     error.value = 'Email ou mot de passe incorrect.'
   } finally {

@@ -17,6 +17,7 @@ import com.besquiros.piercingbysamar.util.OrderReferenceUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,8 +107,11 @@ public class OrderService {
 
     // ── Admin ─────────────────────────────────────────────────
 
-    public PageResponse<OrderResponse> getAll(int page, int size) {
-        Page<Order> result = orderRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    public PageResponse<OrderResponse> getAll(int page, int size, OrderStatus status) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> result = status != null
+                ? orderRepository.findByStatus(status, pageable)
+                : orderRepository.findAll(pageable);
         return toPageResponse(result);
     }
 

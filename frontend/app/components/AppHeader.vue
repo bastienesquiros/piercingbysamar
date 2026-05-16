@@ -12,15 +12,53 @@
         </NuxtLink>
 
         <!-- Search bar (desktop) -->
-        <div class="hidden md:flex flex-1 max-w-md relative">
-          <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-text-muted]" />
+        <div class="hidden md:flex flex-1 max-w-md relative" data-search-desktop>
+          <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-text-muted] z-10" />
           <input
             v-model="searchQuery"
             type="search"
             :placeholder="$t('nav.search')"
-            class="input pl-10 py-2 text-sm"
+            class="input pl-10 py-2 text-sm w-full"
+            autocomplete="off"
+            @input="onInput"
             @keydown.enter="goSearch"
+            @keydown.escape="closeSuggestions"
+            @focus="searchFocused = true"
           />
+          <!-- Suggestions dropdown -->
+          <Transition name="dropdown">
+            <div
+              v-if="showSuggestions"
+              class="absolute top-full left-0 right-0 mt-1 bg-white border border-[--color-border] rounded-xl shadow-lg overflow-hidden z-50"
+            >
+              <NuxtLink
+                v-for="p in suggestions"
+                :key="p.id"
+                :to="localePath(`/products/${p.slug}`)"
+                class="flex items-center gap-3 px-4 py-2.5 hover:bg-[--color-background-soft] transition-colors"
+                @click="closeSuggestions"
+              >
+                <NuxtImg
+                  v-if="p.coverImageUrl"
+                  :src="p.coverImageUrl"
+                  :alt="p.name"
+                  width="36" height="36"
+                  class="w-9 h-9 rounded-lg object-cover shrink-0 bg-[--color-background-soft]"
+                />
+                <div v-else class="w-9 h-9 rounded-lg bg-[--color-background-soft] shrink-0" />
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-[--color-text] truncate">{{ p.name }}</p>
+                  <p v-if="p.minPriceCents" class="text-xs text-[--color-text-muted]">{{ formatPrice(p.minPriceCents) }}</p>
+                </div>
+              </NuxtLink>
+              <button
+                class="w-full text-left px-4 py-2.5 text-sm text-[--color-primary] font-medium hover:bg-[--color-background-soft] border-t border-[--color-border] transition-colors"
+                @click="goSearch"
+              >
+                Voir tous les résultats pour "{{ searchQuery }}"
+              </button>
+            </div>
+          </Transition>
         </div>
 
         <!-- Right actions -->
@@ -87,15 +125,53 @@
 
     <!-- Mobile search (always visible below header on mobile) -->
     <div class="md:hidden border-t border-[--color-border] bg-white px-4 py-2">
-      <div class="relative">
-        <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-text-muted]" />
+      <div class="relative" data-search-mobile>
+        <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-text-muted] z-10" />
         <input
           v-model="searchQuery"
           type="search"
           :placeholder="$t('nav.search')"
-          class="input pl-10 py-2 text-sm"
+          class="input pl-10 py-2 text-sm w-full"
+          autocomplete="off"
+          @input="onInput"
           @keydown.enter="goSearch"
+          @keydown.escape="closeSuggestions"
+          @focus="searchFocused = true"
         />
+        <!-- Mobile suggestions dropdown -->
+        <Transition name="dropdown">
+          <div
+            v-if="showSuggestions"
+            class="absolute top-full left-0 right-0 mt-1 bg-white border border-[--color-border] rounded-xl shadow-lg overflow-hidden z-50"
+          >
+            <NuxtLink
+              v-for="p in suggestions"
+              :key="p.id"
+              :to="localePath(`/products/${p.slug}`)"
+              class="flex items-center gap-3 px-4 py-2.5 hover:bg-[--color-background-soft] transition-colors"
+              @click="closeSuggestions"
+            >
+              <NuxtImg
+                v-if="p.coverImageUrl"
+                :src="p.coverImageUrl"
+                :alt="p.name"
+                width="36" height="36"
+                class="w-9 h-9 rounded-lg object-cover shrink-0 bg-[--color-background-soft]"
+              />
+              <div v-else class="w-9 h-9 rounded-lg bg-[--color-background-soft] shrink-0" />
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-[--color-text] truncate">{{ p.name }}</p>
+                <p v-if="p.minPriceCents" class="text-xs text-[--color-text-muted]">{{ formatPrice(p.minPriceCents) }}</p>
+              </div>
+            </NuxtLink>
+            <button
+              class="w-full text-left px-4 py-2.5 text-sm text-[--color-primary] font-medium hover:bg-[--color-background-soft] border-t border-[--color-border] transition-colors"
+              @click="goSearch"
+            >
+              Voir tous les résultats pour "{{ searchQuery }}"
+            </button>
+          </div>
+        </Transition>
       </div>
     </div>
   </header>
@@ -104,32 +180,70 @@
 <script setup lang="ts">
 const { locale, setLocale } = useI18n()
 const localePath = useLocalePath()
-const route = useRoute()
 const router = useRouter()
 const cart = useCartStore()
 const currencyStore = useCurrencyStore()
 const { fetchCategories } = useCategories()
+const config = useRuntimeConfig()
 
 const searchQuery = ref('')
 const currencyOpen = ref(false)
+const searchFocused = ref(false)
+const suggestions = ref<any[]>([])
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
-onMounted(() => {
-  fetchCategories()
-  document.addEventListener('click', (e) => {
-    if (!(e.target as HTMLElement).closest('[data-currency-toggle]')) {
-      currencyOpen.value = false
-    }
-  })
-})
+const showSuggestions = computed(
+  () => searchFocused.value && searchQuery.value.trim().length >= 2 && suggestions.value.length > 0
+)
+
+function onInput() {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  if (searchQuery.value.trim().length < 2) {
+    suggestions.value = []
+    return
+  }
+  debounceTimer = setTimeout(fetchSuggestions, 300)
+}
+
+async function fetchSuggestions() {
+  try {
+    const res = await $fetch<{ content: any[] }>('/api/products', {
+      baseURL: config.public.apiBase as string,
+      params: { search: searchQuery.value.trim(), size: 5, page: 0 },
+    })
+    suggestions.value = res.content ?? []
+  } catch {
+    suggestions.value = []
+  }
+}
+
+function closeSuggestions() {
+  searchFocused.value = false
+  suggestions.value = []
+}
 
 function goSearch() {
   if (!searchQuery.value.trim()) return
+  closeSuggestions()
   router.push(localePath(`/catalogue?search=${encodeURIComponent(searchQuery.value.trim())}`))
+}
+
+function formatPrice(cents: number) {
+  return Math.round(cents / 100) + ' MAD'
 }
 
 function toggleLocale() {
   setLocale(locale.value === 'fr' ? 'en' : 'fr')
 }
+
+onMounted(() => {
+  fetchCategories()
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement
+    if (!t.closest('[data-currency-toggle]')) currencyOpen.value = false
+    if (!t.closest('[data-search-desktop]') && !t.closest('[data-search-mobile]')) closeSuggestions()
+  })
+})
 </script>
 
 <style scoped>

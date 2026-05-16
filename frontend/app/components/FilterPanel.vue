@@ -24,25 +24,27 @@
         <!-- Parent + sous-catégories indentées -->
         <li v-for="parent in topLevelCategories" :key="parent.id">
           <button
-            class="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors font-medium"
+            class="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors font-medium flex items-center gap-1.5"
             :class="filters.categorySlug === parent.slug
               ? 'bg-[--color-primary-light] text-[--color-primary-dark] font-semibold'
               : 'text-[--color-text] hover:bg-[--color-background-warm]'"
             @click="$emit('setCategory', parent.slug)"
           >
-            {{ $t('categories.' + parent.slug, parent.name) }}
+            <span class="flex-1 text-left">{{ $t('categories.' + parent.slug, parent.name) }}</span>
+            <CategoryTooltip v-if="categoryImage(parent.slug)" :slug="parent.slug" :src="categoryImage(parent.slug)!" />
           </button>
 
           <ul v-if="parent.children?.length" class="mt-0.5 space-y-0.5 border-l-2 border-[--color-border] ml-4 pl-2">
             <li v-for="child in parent.children" :key="child.id">
               <button
-                class="w-full text-left text-sm px-2 py-1 rounded-lg transition-colors"
+                class="w-full text-left text-sm px-2 py-1 rounded-lg transition-colors flex items-center gap-1.5"
                 :class="filters.categorySlug === child.slug
                   ? 'bg-[--color-primary-light] text-[--color-primary-dark] font-semibold'
                   : 'text-[--color-text-muted] hover:text-[--color-text] hover:bg-[--color-background-warm]'"
                 @click="$emit('setCategory', child.slug)"
               >
-                {{ $t('categories.' + child.slug, child.name) }}
+                <span class="flex-1 text-left">{{ $t('categories.' + child.slug, child.name) }}</span>
+                <CategoryTooltip v-if="categoryImage(child.slug)" :slug="child.slug" :src="categoryImage(child.slug)!" />
               </button>
             </li>
           </ul>
@@ -114,6 +116,8 @@ defineEmits<{
   toggleNickelFree: []
   reset: []
 }>()
+
+const { categoryImage } = useCategoryImage()
 
 const hasFilters = computed(
   () => !!props.filters.categorySlug || !!props.filters.material || props.filters.nickelFree

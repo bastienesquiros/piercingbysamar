@@ -28,6 +28,10 @@ export default defineNuxtConfig({
   image: {
     quality: 85,
     formats: ['avif', 'webp'],
+    domains: [
+      'localhost',
+      // Ajouter en prod : 'eu2.contabostorage.com', ton-compte.r2.cloudflarestorage.com, etc.
+    ],
   },
 
   i18n: {
@@ -45,5 +49,12 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8080',
       stripePublicKey: process.env.NUXT_PUBLIC_STRIPE_KEY ?? '',
     }
+  },
+
+  site: {
+    name: 'Piercing by Samar',
+    url: process.env.NUXT_PUBLIC_SITE_URL ?? 'https://piercingbysamar.com',
+    description: 'Bijoux de piercing en titane ASTM F136 à Marrakech — vente en ligne et Click & Collect.',
+    defaultLocale: 'fr',
   },
 })

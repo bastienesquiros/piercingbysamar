@@ -3,7 +3,7 @@
     <!-- Breadcrumb -->
     <div class="container-site pt-6 pb-4">
       <nav class="flex items-center gap-2 text-sm text-[--color-text-muted]">
-        <NuxtLink :to="localePath('/')" class="hover:text-[--color-text] transition-colors">Accueil</NuxtLink>
+        <NuxtLink :to="localePath('/')" class="hover:text-[--color-text] transition-colors">{{ $t('breadcrumb.home') }}</NuxtLink>
         <Icon name="lucide:chevron-right" class="w-3.5 h-3.5" />
         <NuxtLink :to="localePath('/catalogue')" class="hover:text-[--color-text] transition-colors">
           {{ $t('nav.catalogue') }}
@@ -94,9 +94,13 @@
               {{ product.name }}
             </h1>
 
-            <!-- Tags -->
+            <!-- Tags (on exclut "Nickel Free" car affiché séparément avec icône) -->
             <div v-if="product.tags.length" class="flex flex-wrap gap-2">
-              <span v-for="tag in product.tags" :key="tag" class="badge text-xs">{{ tag }}</span>
+              <span
+                v-for="tag in product.tags.filter(t => t.toLowerCase() !== 'nickel free')"
+                :key="tag"
+                class="badge text-xs"
+              >{{ tag }}</span>
             </div>
           </div>
 
@@ -179,7 +183,10 @@
                 :class="selectedVariant.inStock ? 'bg-green-500' : 'bg-red-400'"
               />
               <span :class="selectedVariant.inStock ? 'text-green-700' : 'text-red-500'">
-                {{ selectedVariant.inStock ? 'En stock' : $t('product.out_of_stock') }}
+                {{ selectedVariant.inStock ? $t('product.in_stock') : $t('product.out_of_stock') }}
+              </span>
+              <span v-if="selectedVariant.inStock && selectedVariant.stock <= 5" class="text-amber-600 text-xs font-medium">
+                · {{ $t('product.low_stock', { n: selectedVariant.stock }) }}
               </span>
             </div>
             <span class="text-xs text-[--color-text-muted] opacity-60">
@@ -191,7 +198,7 @@
           <div class="space-y-3">
             <!-- Quantity selector -->
             <div class="flex items-center gap-3">
-              <p class="text-sm font-semibold text-[--color-text] w-20">Quantité</p>
+              <p class="text-sm font-semibold text-[--color-text] w-20">{{ $t('product.quantity') }}</p>
               <div class="flex items-center border border-[--color-border] rounded-full overflow-hidden">
                 <button
                   class="w-10 h-10 flex items-center justify-center text-[--color-text-muted]
@@ -222,7 +229,7 @@
             >
               <Icon name="lucide:shopping-bag" class="w-5 h-5" />
               <span v-if="!hasVariants || selectedVariant">{{ $t('product.add_to_cart') }}</span>
-              <span v-else>Choisir une variante</span>
+              <span v-else>{{ $t('product.choose_variant') }}</span>
             </button>
 
             <!-- WhatsApp CTA — out of stock -->
@@ -235,20 +242,28 @@
                      bg-[#25D366] text-white hover:bg-[#1ebe5a] transition-colors"
             >
               <Icon name="simple-icons:whatsapp" class="w-5 h-5" />
-              Me contacter sur WhatsApp
+              {{ $t('product.whatsapp_contact') }}
             </a>
 
-            <!-- Added feedback -->
             <Transition name="fade">
               <p v-if="addedFeedback" class="text-center text-sm text-green-600 font-medium animate-fade-in">
-                ✓ Ajouté au panier !
+                {{ $t('product.added_to_cart') }}
               </p>
             </Transition>
           </div>
 
+          <!-- Click & Collect banner -->
+          <div class="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+            <Icon name="lucide:store" class="w-5 h-5 text-amber-600 shrink-0" />
+            <div class="text-sm">
+              <p class="font-semibold text-amber-800">{{ $t('product.click_collect_badge') }}</p>
+              <p class="text-amber-700">{{ $t('product.click_collect_detail') }}</p>
+            </div>
+          </div>
+
           <!-- Description -->
           <div v-if="product.description" class="pt-4 border-t border-[--color-border]">
-            <p class="text-sm font-semibold text-[--color-text] mb-2">Description</p>
+            <p class="text-sm font-semibold text-[--color-text] mb-2">{{ $t('product.description') }}</p>
             <p class="text-sm text-[--color-text-muted] leading-relaxed whitespace-pre-line">
               {{ product.description }}
             </p>
@@ -258,15 +273,15 @@
           <div class="bg-[--color-background-soft] rounded-xl p-4 text-sm text-[--color-text-muted] space-y-1">
             <p class="flex items-center gap-2">
               <Icon name="lucide:shield-check" class="w-4 h-4 text-[--color-primary]" />
-              Matériaux certifiés hypoallergéniques
+              {{ $t('product.trust_materials') }}
             </p>
             <p class="flex items-center gap-2">
               <Icon name="lucide:truck" class="w-4 h-4 text-[--color-primary]" />
-              Livraison mondiale · Click & Collect Marrakech
+              {{ $t('product.trust_shipping') }}
             </p>
             <p class="flex items-center gap-2">
               <Icon name="lucide:lock" class="w-4 h-4 text-[--color-primary]" />
-              Paiement sécurisé via Stripe
+              {{ $t('product.trust_payment') }}
             </p>
           </div>
         </div>
@@ -292,7 +307,7 @@ const { data: product } = await useAsyncData(
 )
 
 if (!product.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Produit introuvable' })
+  await showError({ statusCode: 404, statusMessage: 'Produit introuvable' })
 }
 
 // ── Gallery ────────────────────────────────────────────────────
@@ -394,6 +409,7 @@ function addToCart() {
     sku: v.sku,
     price: v.priceCents,
     quantity: quantity.value,
+    stock: v.stock,
     imageUrl: sortedImages.value[0]?.r2Url ?? null,
   })
 
