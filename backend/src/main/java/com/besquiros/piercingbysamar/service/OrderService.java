@@ -102,6 +102,7 @@ public class OrderService {
         items.forEach(item -> item.setOrder(order));
         Order saved = orderRepository.save(order);
         mailService.sendOrderConfirmation(saved);
+        mailService.sendAdminNewOrder(saved);
         return orderMapper.toResponse(saved);
     }
 
@@ -125,12 +126,15 @@ public class OrderService {
 
         if (newStatus == OrderStatus.SHIPPED) {
             mailService.sendShippingNotification(saved);
+        } else if (newStatus == OrderStatus.DELIVERED) {
+            mailService.sendReviewRequest(saved);
         } else if (newStatus == OrderStatus.READY) {
             mailService.sendClickCollectReady(saved);
         } else if (newStatus == OrderStatus.CANCELLED) {
             mailService.sendCancellation(saved);
         } else if (newStatus == OrderStatus.COLLECTED) {
             mailService.sendCollected(saved);
+            mailService.sendReviewRequest(saved);
         }
 
         return orderMapper.toResponse(saved);

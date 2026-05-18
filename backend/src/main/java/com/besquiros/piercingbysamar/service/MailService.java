@@ -28,6 +28,12 @@ public class MailService {
     @Value("${app.mail.whatsapp:212781570083}")
     private String whatsappNumber;
 
+    @Value("${app.mail.admin-email:samar@piercingbysamar.com}")
+    private String adminEmail;
+
+    @Value("${app.mail.google-review-url:https://maps.app.goo.gl/b4qDcoBaafQaAqzMA}")
+    private String googleReviewUrl;
+
     // ── Emails publics ─────────────────────────────────────────
 
     public void sendOrderConfirmation(Order order) {
@@ -63,6 +69,18 @@ public class MailService {
     public void sendCollected(Order order) {
         String subject = "Merci pour votre visite ! — " + shopName;
         String body = buildCollectedHtml(order);
+        send(order.getCustomerEmail(), subject, body);
+    }
+
+    public void sendAdminNewOrder(Order order) {
+        String subject = "🛍️ Nouvelle commande " + order.getReference() + " — " + order.getCustomerName();
+        String body = buildAdminNewOrderHtml(order);
+        send(adminEmail, subject, body);
+    }
+
+    public void sendReviewRequest(Order order) {
+        String subject = "Votre avis compte ! ⭐ — " + shopName;
+        String body = buildReviewRequestHtml(order);
         send(order.getCustomerEmail(), subject, body);
     }
 
@@ -102,6 +120,12 @@ public class MailService {
                 <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
                   <p style="margin:0;font-weight:600">Click &amp; Collect — Marrakech</p>
                   <p style="margin:8px 0 0;color:#666">Paiement sur place : espèces ou virement.</p>
+                  <p style="margin:8px 0 0">
+                    <a href="https://maps.app.goo.gl/b4qDcoBaafQaAqzMA"
+                       style="color:#C4A882;font-size:13px">
+                      📍 Voir la boutique sur Google Maps
+                    </a>
+                  </p>
                 </div>
                 """ : """
                 <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
@@ -167,6 +191,12 @@ public class MailService {
                   <p style="margin:0;font-weight:600">Informations de retrait</p>
                   <p style="margin:8px 0 0">Pensez à vous munir de votre numéro de commande : <strong>%s</strong></p>
                   <p style="margin:4px 0 0;color:#666">Paiement accepté : espèces et virement</p>
+                  <p style="margin:8px 0 0">
+                    <a href="https://maps.app.goo.gl/b4qDcoBaafQaAqzMA"
+                       style="color:#C4A882;font-size:13px">
+                      📍 Voir la boutique sur Google Maps
+                    </a>
+                  </p>
                 </div>
                 %s
                 """.formatted(
@@ -212,6 +242,54 @@ public class MailService {
                 order.getCustomerName(),
                 order.getReference(),
                 buildItemsTable(order)));
+    }
+
+    private String buildAdminNewOrderHtml(Order order) {
+        String typeLabel = order.getOrderType().name().equals("CLICK_COLLECT") ? "Click & Collect" : "Livraison";
+        String waUrl = "https://wa.me/" + order.getCustomerPhone();
+        return wrapLayout(order, """
+                <h2 style="color:#2C1810;margin-top:0">🛍️ Nouvelle commande reçue</h2>
+                <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+                  <p style="margin:0;font-weight:600">%s — %s</p>
+                  <p style="margin:6px 0 0;color:#666">%s · %s</p>
+                  %s
+                </div>
+                %s
+                """.formatted(
+                order.getReference(),
+                typeLabel,
+                order.getCustomerName(),
+                order.getCustomerEmail(),
+                order.getCustomerPhone() != null
+                    ? "<p style=\"margin:6px 0 0\"><a href=\"" + waUrl + "\" style=\"color:#25D366;font-weight:600\">💬 " + order.getCustomerPhone() + "</a></p>"
+                    : "",
+                buildItemsTable(order)));
+    }
+
+    private String buildReviewRequestHtml(Order order) {
+        return wrapLayout(order, """
+                <h2 style="color:#2C1810;margin-top:0">Votre avis nous aide beaucoup ⭐</h2>
+                <p>Bonjour %s,</p>
+                <p>Nous espérons que vous êtes satisfait(e) de votre commande <strong>%s</strong> chez Piercing by Samar.</p>
+                <p style="color:#666">Si vous avez un moment, laisser un avis Google nous aide énormément à faire connaître la boutique.</p>
+                <div style="text-align:center;margin:28px 0">
+                  <a href="%s"
+                     style="display:inline-block;background:#C4A882;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px">
+                    ⭐ Laisser un avis Google
+                  </a>
+                </div>
+                <p style="text-align:center;margin:0">
+                  <a href="https://www.instagram.com/piercing_bysamar" style="color:#C4A882;font-size:13px">Nous suivre sur Instagram</a>
+                </p>
+                <p style="margin-top:24px;color:#999;font-size:12px;text-align:center">
+                  Si vous avez la moindre question, on est là sur
+                  <a href="https://wa.me/%s" style="color:#25D366">WhatsApp</a>.
+                </p>
+                """.formatted(
+                order.getCustomerName(),
+                order.getReference(),
+                googleReviewUrl,
+                whatsappNumber));
     }
 
     private String buildItemsTable(Order order) {
@@ -290,7 +368,8 @@ public class MailService {
                         <!-- Footer -->
                         <tr>
                           <td style="padding:16px 32px;text-align:center;color:#999;font-size:12px">
-                            Commande n° %s &bull; Piercing by Samar &bull; <a href="https://piercingbysamar.com" style="color:#C4A882">piercingbysamar.com</a>
+                            Commande n° %s &bull; Piercing by Samar &bull; <a href="https://piercingbysamar.com" style="color:#C4A882">piercingbysamar.com</a><br>
+                            <a href="https://wa.me/%s" style="color:#999;text-decoration:none">💬 +212 7 81 57 00 83</a>
                           </td>
                         </tr>
 
@@ -299,6 +378,6 @@ public class MailService {
                   </table>
                 </body>
                 </html>
-                """.formatted(content, order.getReference());
+                """.formatted(content, order.getReference(), whatsappNumber);
     }
 }
