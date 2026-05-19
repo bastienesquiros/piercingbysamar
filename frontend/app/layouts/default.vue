@@ -12,11 +12,10 @@
 
 <script setup lang="ts">
 const currencyStore = useCurrencyStore()
-const config = useRuntimeConfig()
 const { error: toastError } = useToast()
 
 onMounted(() => {
-  currencyStore.fetchRates(config.public.apiBase as string)
+  currencyStore.fetchRates()
 })
 
 onErrorCaptured((err) => {
