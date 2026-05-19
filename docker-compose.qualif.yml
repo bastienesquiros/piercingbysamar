@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      NUXT_API_BASE: http://pbs_backend_qualif:8080
+      NUXT_API_BASE: http://backend:8080
       NUXT_PUBLIC_API_BASE: http://${VPS_HOST}:8081
       NUXT_PUBLIC_STRIPE_KEY: ${STRIPE_PUBLIC_KEY}
       NUXT_PUBLIC_SITE_URL: http://${VPS_HOST}:3001
