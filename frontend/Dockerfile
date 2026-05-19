@@ -1,17 +1,17 @@
 # ── Stage 1 : Build ───────────────────────────────────────────
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
 # Dépendances d'abord (cache Docker si package.json inchangé)
 COPY package*.json ./
-RUN npm install -g npm@latest --quiet && npm ci --ignore-scripts
+RUN npm ci --ignore-scripts
 
 # Code source + build Nuxt
 COPY . .
 RUN npm run build
 
 # ── Stage 2 : Runtime ─────────────────────────────────────────
-FROM node:22-alpine AS runtime
+FROM node:24-alpine AS runtime
 WORKDIR /app
 
 # Utilisateur non-root
