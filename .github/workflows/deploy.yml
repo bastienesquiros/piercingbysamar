@@ -84,7 +84,7 @@ jobs:
 
   # ── Deploy ───────────────────────────────────────────────────
   deploy:
-    name: Deploy (${{ github.ref_name == 'main' && 'prod' || 'qualif' }})
+    name: Deploy (${{ github.ref_name }})
     needs: build-push
     runs-on: ubuntu-latest
 
