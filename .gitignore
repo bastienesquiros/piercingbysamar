@@ -2,6 +2,7 @@
 
 # Secrets — ne jamais committer
 .env
+.env.qualif
 
 # SSL certs — générés sur le VPS par Traefik
 letsencrypt/
