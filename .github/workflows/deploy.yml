@@ -84,7 +84,7 @@ jobs:
 
   # ── Deploy ───────────────────────────────────────────────────
   deploy:
-    name: Deploy (${{ github.ref_name }})
+    name: Deploy
     needs: build-push
     runs-on: ubuntu-latest
 
