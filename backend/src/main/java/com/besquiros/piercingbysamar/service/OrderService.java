@@ -124,20 +124,40 @@ public class OrderService {
         order.setStatus(newStatus);
         Order saved = orderRepository.save(order);
 
-        if (newStatus == OrderStatus.SHIPPED) {
+        if (newStatus == OrderStatus.PAID) {
+            decrementStock(saved);
+        } else if (newStatus == OrderStatus.READY) {
+            decrementStock(saved);
+            mailService.sendClickCollectReady(saved);
+        } else if (newStatus == OrderStatus.CANCELLED) {
+            reinstateStock(saved);
+            mailService.sendCancellation(saved);
+        } else if (newStatus == OrderStatus.SHIPPED) {
             mailService.sendShippingNotification(saved);
         } else if (newStatus == OrderStatus.DELIVERED) {
             mailService.sendReviewRequest(saved);
-        } else if (newStatus == OrderStatus.READY) {
-            mailService.sendClickCollectReady(saved);
-        } else if (newStatus == OrderStatus.CANCELLED) {
-            mailService.sendCancellation(saved);
         } else if (newStatus == OrderStatus.COLLECTED) {
             mailService.sendCollected(saved);
             mailService.sendReviewRequest(saved);
         }
 
         return orderMapper.toResponse(saved);
+    }
+
+    private void decrementStock(Order order) {
+        for (OrderItem item : order.getItems()) {
+            ProductVariant variant = item.getProductVariant();
+            variant.setStock(Math.max(0, variant.getStock() - item.getQuantity()));
+            variantRepository.save(variant);
+        }
+    }
+
+    private void reinstateStock(Order order) {
+        for (OrderItem item : order.getItems()) {
+            ProductVariant variant = item.getProductVariant();
+            variant.setStock(variant.getStock() + item.getQuantity());
+            variantRepository.save(variant);
+        }
     }
 
     private String buildVariantLabel(ProductVariant variant) {
