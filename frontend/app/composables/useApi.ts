@@ -2,7 +2,8 @@ import type { FetchOptions } from 'ofetch'
 
 export function useApi() {
   const config = useRuntimeConfig()
-  const baseURL = config.public.apiBase as string
+  // Server-side: use internal Docker URL if set, fallback to public URL
+  const baseURL = (import.meta.server && config.apiBase ? config.apiBase : config.public.apiBase) as string
 
   function get<T>(path: string, opts?: FetchOptions) {
     return $fetch<T>(path, { baseURL, method: 'GET', ...opts })
