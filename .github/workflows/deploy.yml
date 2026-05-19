@@ -50,6 +50,10 @@ jobs:
         working-directory: frontend
         run: npm ci --ignore-scripts
 
+      - name: Prepare Nuxt
+        working-directory: frontend
+        run: npx nuxt prepare
+
       - name: Run tests
         working-directory: frontend
         run: npm test
