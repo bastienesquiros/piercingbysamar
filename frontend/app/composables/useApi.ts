@@ -2,8 +2,9 @@ import type { FetchOptions } from 'ofetch'
 
 export function useApi() {
   const config = useRuntimeConfig()
-  // Server-side: use internal Docker URL if set, fallback to public URL
-  const baseURL = (import.meta.server && config.apiBase ? config.apiBase : config.public.apiBase) as string
+  // Server-side: call backend directly via internal Docker URL
+  // Client-side: use relative URL → proxied through Nuxt server (server/routes/api/[...].ts)
+  const baseURL = (import.meta.server && config.apiBase ? config.apiBase : '') as string
 
   function get<T>(path: string, opts?: FetchOptions) {
     return $fetch<T>(path, { baseURL, method: 'GET', ...opts })
