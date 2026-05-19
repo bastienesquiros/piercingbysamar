@@ -2,7 +2,6 @@ package com.besquiros.piercingbysamar.service;
 
 import com.besquiros.piercingbysamar.entity.Order;
 import com.besquiros.piercingbysamar.entity.OrderItem;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +95,7 @@ public class MailService {
             helper.setText(html, true);
             mailSender.send(message);
             log.info("Email envoyé à {} — {}", to, subject);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Erreur lors de l'envoi de l'email à {} : {}", to, e.getMessage());
         }
     }
