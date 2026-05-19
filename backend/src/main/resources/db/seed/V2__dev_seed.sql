@@ -1,5 +1,5 @@
 -- ============================================================
--- V2 - Seed données de développement (profil dev uniquement)
+-- V2 - Seed données de développement / qualif
 -- ============================================================
 
 -- ── Categories ──────────────────────────────────────────────
@@ -196,3 +196,24 @@ INSERT INTO order_items (order_id, product_variant_id, snapshot_product_name, sn
     (5, 16, 'Nostril Stud Titanium',           '6mm - Silver', 15000, 1, 15000),
     -- Commande 6 (subtotal 22000 MAD) : 1x Anneau Segment Gold 6mm (annulée)
     (6, 1,  'Anneau Segment Clicker Titanium', '6mm - Gold',   22000, 1, 22000);
+
+-- ── Product Images (placeholders picsum.photos) ───────────────
+-- position 0 = image principale
+INSERT INTO product_images (product_id, variant_id, r2_url, position, alt_text) VALUES
+    -- Anneau Segment Clicker Titanium (produit 1)
+    (1, NULL, 'https://picsum.photos/seed/asc-1/800/800', 0, 'Anneau Segment Clicker Titanium - vue principale'),
+    (1, NULL, 'https://picsum.photos/seed/asc-2/800/800', 1, 'Anneau Segment Clicker Titanium - détail'),
+    -- Labret Flat Back Titanium (produit 2)
+    (2, NULL, 'https://picsum.photos/seed/lfb-1/800/800', 0, 'Labret Flat Back Titanium - vue principale'),
+    (2, NULL, 'https://picsum.photos/seed/lfb-2/800/800', 1, 'Labret Flat Back Titanium - porté'),
+    -- Anneau Clicker Serti Zirconiums (produit 3)
+    (3, NULL, 'https://picsum.photos/seed/acs-1/800/800', 0, 'Anneau Clicker Serti Zirconiums - vue principale'),
+    (3, NULL, 'https://picsum.photos/seed/acs-2/800/800', 1, 'Anneau Clicker Serti Zirconiums - détail zirconiums'),
+    -- Nostril Stud Titanium (produit 4)
+    (4, NULL, 'https://picsum.photos/seed/ns-1/800/800',  0, 'Nostril Stud Titanium - vue principale'),
+    -- Banana Bell Nombril Acier (produit 5)
+    (5, NULL, 'https://picsum.photos/seed/bb-1/800/800',  0, 'Banana Bell Nombril Acier - vue principale'),
+    (5, NULL, 'https://picsum.photos/seed/bb-2/800/800',  1, 'Banana Bell Nombril Acier - porté'),
+    -- Anneau Conch Titanium Pavé (produit 6)
+    (6, NULL, 'https://picsum.photos/seed/acp-1/800/800', 0, 'Anneau Conch Titanium Pavé - vue principale'),
+    (6, NULL, 'https://picsum.photos/seed/acp-2/800/800', 1, 'Anneau Conch Titanium Pavé - détail');
