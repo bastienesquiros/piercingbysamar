@@ -21,7 +21,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
     networks:
-      - proxy
+      - pbs_proxy
 
   # ── Frontend Nuxt ─────────────────────────────────────────────
   frontend:
@@ -42,7 +42,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - proxy
+      - pbs_proxy
     labels:
       - traefik.enable=true
       - traefik.docker.network=pbs_proxy
@@ -97,8 +97,8 @@ services:
       retries: 5
       start_period: 40s
     networks:
-      - internal
-      - proxy
+      - pbs_internal
+      - pbs_proxy
     labels:
       - traefik.enable=true
       - traefik.docker.network=pbs_proxy
@@ -129,15 +129,15 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - internal
+      - pbs_internal
 
 volumes:
   pbs_pgdata:
 
 networks:
-  internal:
+  pbs_internal:
     name: pbs_internal
     internal: true
-  proxy:
+  pbs_proxy:
     name: pbs_proxy
     driver: bridge
