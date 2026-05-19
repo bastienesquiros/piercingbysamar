@@ -797,7 +797,7 @@ async function uploadImages(e: Event) {
     try {
       await $fetch(`/api/admin/products/${editingId.value}/images`, {
         method: 'POST',
-        baseURL: useRuntimeConfig().public.apiBase as string,
+        baseURL: '',
         headers: auth.authHeader,
         body: fd,
       })
@@ -838,7 +838,7 @@ async function updateImageAlt(imageId: number, altText: string) {
   try {
     await $fetch(`/api/admin/products/${editingId.value}/images/${imageId}`, {
       method: 'PATCH',
-      baseURL: useRuntimeConfig().public.apiBase as string,
+      baseURL: '',
       headers: auth.authHeader,
       body: { altText },
     })
@@ -872,13 +872,13 @@ async function moveImage(imageId: number, currentIdx: number, direction: -1 | 1)
     await Promise.all([
       $fetch(`/api/admin/products/${editingId.value}/images/${imgs[currentIdx].id}`, {
         method: 'PATCH',
-        baseURL: useRuntimeConfig().public.apiBase as string,
+        baseURL: '',
         headers: auth.authHeader,
         body: { position: posB },
       }),
       $fetch(`/api/admin/products/${editingId.value}/images/${imgs[swapIdx].id}`, {
         method: 'PATCH',
-        baseURL: useRuntimeConfig().public.apiBase as string,
+        baseURL: '',
         headers: auth.authHeader,
         body: { position: posA },
       }),

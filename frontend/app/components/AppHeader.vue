@@ -208,7 +208,7 @@ function onInput() {
 async function fetchSuggestions() {
   try {
     const res = await $fetch<{ content: any[] }>('/api/products', {
-      baseURL: config.public.apiBase as string,
+      baseURL: '',
       params: { search: searchQuery.value.trim(), size: 5, page: 0 },
     })
     suggestions.value = res.content ?? []
