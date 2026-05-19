@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Dépendances d'abord (cache Docker si package.json inchangé)
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Code source + build Nuxt
 COPY . .
