@@ -118,8 +118,10 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "COMPOSE=docker-compose.yml" >> $GITHUB_OUTPUT
+            echo "ENV_FILE=.env" >> $GITHUB_OUTPUT
           else
             echo "COMPOSE=docker-compose.qualif.yml" >> $GITHUB_OUTPUT
+            echo "ENV_FILE=.env.qualif" >> $GITHUB_OUTPUT
           fi
 
       - name: Deploy via SSH
@@ -132,6 +134,6 @@ jobs:
           script: |
             cd ${{ secrets.VPS_DEPLOY_PATH }}
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose -f ${{ steps.env.outputs.COMPOSE }} pull
-            docker compose -f ${{ steps.env.outputs.COMPOSE }} up -d --remove-orphans
+            docker compose -f ${{ steps.env.outputs.COMPOSE }} --env-file ${{ steps.env.outputs.ENV_FILE }} pull
+            docker compose -f ${{ steps.env.outputs.COMPOSE }} --env-file ${{ steps.env.outputs.ENV_FILE }} up -d --remove-orphans
             docker image prune -f
