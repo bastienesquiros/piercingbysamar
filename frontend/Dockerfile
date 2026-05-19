@@ -3,7 +3,7 @@ FROM node:24-alpine AS build
 WORKDIR /app
 
 # Dépendances d'abord (cache Docker si package.json inchangé)
-COPY package*.json ./
+COPY package*.json .npmrc ./
 RUN npm ci --ignore-scripts
 
 # Code source + build Nuxt
