@@ -133,6 +133,7 @@ jobs:
           port: 2222
           script: |
             cd ${{ secrets.VPS_DEPLOY_PATH }}
+            git pull origin ${{ github.ref_name }}
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose -f ${{ steps.env.outputs.COMPOSE }} --env-file ${{ steps.env.outputs.ENV_FILE }} pull
             docker compose -f ${{ steps.env.outputs.COMPOSE }} --env-file ${{ steps.env.outputs.ENV_FILE }} up -d --remove-orphans
