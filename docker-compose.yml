@@ -1,28 +1,5 @@
 services:
 
-  # ── Traefik (reverse proxy + SSL Let's Encrypt) ──────────────
-  traefik:
-    image: traefik:latest
-    container_name: pbs_traefik
-    restart: unless-stopped
-    command:
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.pbsresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.pbsresolver.acme.email=${ACME_EMAIL}"
-      - "--certificatesresolvers.pbsresolver.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
-    networks:
-      - pbs_proxy
-
   # ── Frontend Nuxt ─────────────────────────────────────────────
   frontend:
     image: ghcr.io/bastienesquiros/piercingbysamar/frontend:prod
@@ -48,19 +25,19 @@ services:
         condition: service_healthy
     networks:
       - pbs_proxy
+      - proxy_net
     labels:
       - traefik.enable=true
-      - traefik.docker.network=pbs_proxy
+      - traefik.docker.network=proxy_net
       # HTTPS
       - traefik.http.routers.pbs-front.rule=Host(`piercingbysamar.com`) || Host(`www.piercingbysamar.com`)
       - traefik.http.routers.pbs-front.entrypoints=websecure
-      - traefik.http.routers.pbs-front.tls.certresolver=pbsresolver
+      - traefik.http.routers.pbs-front.tls.certresolver=main
       - traefik.http.services.pbs-front.loadbalancer.server.port=3000
-      # Redirect HTTP → HTTPS
+      # HTTP → HTTPS redirect
       - traefik.http.routers.pbs-front-http.rule=Host(`piercingbysamar.com`) || Host(`www.piercingbysamar.com`)
       - traefik.http.routers.pbs-front-http.entrypoints=web
-      - traefik.http.routers.pbs-front-http.middlewares=https-redirect
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.routers.pbs-front-http.middlewares=https-redirect@file
 
   # ── Backend Spring Boot ───────────────────────────────────────
   backend:
@@ -104,19 +81,19 @@ services:
       start_period: 40s
     networks:
       - pbs_internal
-      - pbs_proxy
+      - proxy_net
     labels:
       - traefik.enable=true
-      - traefik.docker.network=pbs_proxy
+      - traefik.docker.network=proxy_net
       # HTTPS
       - traefik.http.routers.pbs-api.rule=Host(`api.piercingbysamar.com`)
       - traefik.http.routers.pbs-api.entrypoints=websecure
-      - traefik.http.routers.pbs-api.tls.certresolver=pbsresolver
+      - traefik.http.routers.pbs-api.tls.certresolver=main
       - traefik.http.services.pbs-api.loadbalancer.server.port=8080
-      # Redirect HTTP → HTTPS
+      # HTTP → HTTPS redirect
       - traefik.http.routers.pbs-api-http.rule=Host(`api.piercingbysamar.com`)
       - traefik.http.routers.pbs-api-http.entrypoints=web
-      - traefik.http.routers.pbs-api-http.middlewares=https-redirect
+      - traefik.http.routers.pbs-api-http.middlewares=https-redirect@file
 
   # ── PostgreSQL ────────────────────────────────────────────────
   db:
@@ -147,3 +124,6 @@ networks:
   pbs_proxy:
     name: pbs_proxy
     driver: bridge
+  proxy_net:
+    name: proxy_net
+    external: true

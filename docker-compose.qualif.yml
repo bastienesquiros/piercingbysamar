@@ -9,10 +9,8 @@ services:
       NODE_ENV: production
       NUXT_API_BASE: http://backend:8080
       NUXT_PUBLIC_STRIPE_KEY: ${STRIPE_PUBLIC_KEY}
-      NUXT_PUBLIC_SITE_URL: http://${VPS_HOST}:3001
+      NUXT_PUBLIC_SITE_URL: https://qualif.piercingbysamar.com
       NUXT_OG_IMAGE_SECRET: ${NUXT_OG_IMAGE_SECRET}
-    ports:
-      - "3001:3000"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ > /dev/null 2>&1 || exit 1"]
       interval: 30s
@@ -24,6 +22,20 @@ services:
         condition: service_healthy
     networks:
       - pbs_qualif
+      - proxy_net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy_net
+      # HTTPS + basicauth
+      - traefik.http.routers.pbs-qualif.rule=Host(`qualif.piercingbysamar.com`)
+      - traefik.http.routers.pbs-qualif.entrypoints=websecure
+      - traefik.http.routers.pbs-qualif.tls.certresolver=main
+      - traefik.http.routers.pbs-qualif.middlewares=basicauth@file
+      - traefik.http.services.pbs-qualif.loadbalancer.server.port=3000
+      # HTTP → HTTPS redirect
+      - traefik.http.routers.pbs-qualif-http.rule=Host(`qualif.piercingbysamar.com`)
+      - traefik.http.routers.pbs-qualif-http.entrypoints=web
+      - traefik.http.routers.pbs-qualif-http.middlewares=https-redirect@file
 
   # ── Backend Spring Boot ───────────────────────────────────────
   backend:
@@ -41,7 +53,7 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-      FRONTEND_URL: http://${VPS_HOST}:3001
+      FRONTEND_URL: https://qualif.piercingbysamar.com
       MAIL_HOST: ${MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME}
@@ -53,8 +65,6 @@ services:
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       S3_PUBLIC_URL: ${S3_PUBLIC_URL}
-    ports:
-      - "8081:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -93,3 +103,6 @@ networks:
   pbs_qualif:
     name: pbs_qualif
     driver: bridge
+  proxy_net:
+    name: proxy_net
+    external: true
