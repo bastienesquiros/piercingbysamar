@@ -281,7 +281,7 @@
             </p>
             <p class="flex items-center gap-2">
               <Icon name="lucide:lock" class="w-4 h-4 text-[--color-primary]" />
-              {{ $t('product.trust_payment') }}
+              {{ stripeEnabled ? $t('product.trust_payment') : $t('product.trust_payment_no_stripe') }}
             </p>
           </div>
         </div>
@@ -298,6 +298,7 @@ const localePath = useLocalePath()
 const cart = useCartStore()
 const { get } = useApi()
 const { format } = usePrice()
+const { public: { stripeEnabled } } = useRuntimeConfig()
 
 // ── Fetch product ──────────────────────────────────────────────
 const { data: product } = await useAsyncData(

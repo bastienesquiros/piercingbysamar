@@ -13,7 +13,8 @@
     "view_all": "View catalogue",
     "view_catalogue": "View all products",
     "trust_shipping": "Worldwide shipping",
-    "trust_payment": "Secure payment via Stripe or in store"
+    "trust_payment": "Secure payment via Stripe or in store",
+    "trust_payment_no_stripe": "Secure in-store payment"
   },
   "categories": {
     "oreille": "Ear",
@@ -47,6 +48,7 @@
     "trust_materials": "Certified hypoallergenic materials",
     "trust_shipping": "Worldwide shipping · Click & Collect Marrakech",
     "trust_payment": "Secure payment via Stripe or in store",
+    "trust_payment_no_stripe": "Secure in-store payment",
     "click_collect_badge": "Click & Collect available · Marrakech",
     "click_collect_detail": "In-store pickup · Cash or card payment on site"
   },

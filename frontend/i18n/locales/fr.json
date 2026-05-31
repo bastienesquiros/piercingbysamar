@@ -13,7 +13,8 @@
     "view_all": "Voir le catalogue",
     "view_catalogue": "Voir tout le catalogue",
     "trust_shipping": "Livraison mondiale",
-    "trust_payment": "Paiement sécurisé Stripe ou sur place"
+    "trust_payment": "Paiement sécurisé Stripe ou sur place",
+    "trust_payment_no_stripe": "Paiement sécurisé sur place"
   },
   "categories": {
     "oreille": "Oreille",
@@ -47,6 +48,7 @@
     "trust_materials": "Matériaux certifiés hypoallergéniques",
     "trust_shipping": "Livraison mondiale · Click & Collect Marrakech",
     "trust_payment": "Paiement sécurisé via Stripe ou sur place",
+    "trust_payment_no_stripe": "Paiement sécurisé sur place",
     "click_collect_badge": "Click & Collect disponible · Marrakech",
     "click_collect_detail": "Retrait en boutique · Paiement liquide ou carte sur place"
   },

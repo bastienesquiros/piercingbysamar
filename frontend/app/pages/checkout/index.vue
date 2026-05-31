@@ -27,8 +27,9 @@
             <h2 class="font-semibold text-[--color-text] mb-4">{{ $t('checkout.delivery_mode') }}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-              <!-- Shipping -->
+              <!-- Shipping (masqué si Stripe désactivé) -->
               <button
+                v-if="stripeEnabled"
                 class="flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all duration-200"
                 :class="form.orderType === 'SHIPPING'
                   ? 'border-[--color-primary] bg-[--color-primary-light]/30'
@@ -285,6 +286,7 @@ const currencyStore = useCurrencyStore()
 const { post } = useApi()
 const router = useRouter()
 const { format, formatAs } = usePrice()
+const { public: { stripeEnabled } } = useRuntimeConfig()
 
 /** Devise réelle de paiement selon les règles métier :
  * - C&C → toujours MAD (paiement local)

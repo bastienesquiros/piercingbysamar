@@ -30,7 +30,7 @@
           </div>
           <div class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
             <Icon name="lucide:lock" class="w-4 h-4 text-[--color-primary] shrink-0" />
-            <span>{{ $t('home.trust_payment') }}</span>
+            <span>{{ stripeEnabled ? $t('home.trust_payment') : $t('home.trust_payment_no_stripe') }}</span>
           </div>
         </div>
       </div>
@@ -125,6 +125,7 @@ const localePath = useLocalePath()
 const { get } = useApi()
 const { topLevel, fetchCategories } = useCategories()
 const { categoryImage } = useCategoryImage()
+const { public: { stripeEnabled } } = useRuntimeConfig()
 
 onMounted(() => fetchCategories())
 
