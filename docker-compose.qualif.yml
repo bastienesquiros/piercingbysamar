@@ -9,6 +9,7 @@ services:
       NODE_ENV: production
       NUXT_API_BASE: http://backend:8080
       NUXT_PUBLIC_STRIPE_KEY: ${STRIPE_PUBLIC_KEY}
+      NUXT_PUBLIC_STRIPE_ENABLED: ${STRIPE_ENABLED:-true}
       NUXT_PUBLIC_SITE_URL: https://qualif.piercingbysamar.com
       NUXT_OG_IMAGE_SECRET: ${NUXT_OG_IMAGE_SECRET}
     healthcheck:
@@ -53,6 +54,7 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      APP_STRIPE_ENABLED: ${STRIPE_ENABLED:-true}
       FRONTEND_URL: https://qualif.piercingbysamar.com
       MAIL_HOST: ${MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT:-587}
