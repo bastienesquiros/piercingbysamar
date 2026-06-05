@@ -123,11 +123,9 @@ import type { PageResponse, ProductSummary } from '~/types'
 
 const localePath = useLocalePath()
 const { get } = useApi()
-const { topLevel, fetchCategories } = useCategories()
+const { topLevel } = useCategories()
 const { categoryImage } = useCategoryImage()
 const { public: { stripeEnabled } } = useRuntimeConfig()
-
-onMounted(() => fetchCategories())
 
 const { data: products, pending } = await useAsyncData(
   'home-products',

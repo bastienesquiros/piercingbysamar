@@ -2,17 +2,18 @@ import type { Category } from '~/types'
 
 export function useCategories() {
   const { get } = useApi()
-  const categories = useState<Category[]>('categories', () => [])
 
-  async function fetchCategories() {
-    if (categories.value.length) return
-    const data = await get<Category[]>('/api/categories')
-    categories.value = data ?? []
-  }
+  const { data, refresh } = useAsyncData(
+    'categories',
+    () => get<Category[]>('/api/categories'),
+    { default: () => [] as Category[], dedupe: 'defer' }
+  )
+
+  const categories = computed(() => data.value ?? [])
 
   const topLevel = computed(() =>
     categories.value.filter((c) => !c.parentId)
   )
 
-  return { categories, topLevel, fetchCategories }
+  return { categories, topLevel, refresh }
 }

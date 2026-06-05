@@ -183,7 +183,6 @@ const localePath = useLocalePath()
 const router = useRouter()
 const cart = useCartStore()
 const currencyStore = useCurrencyStore()
-const { fetchCategories } = useCategories()
 const config = useRuntimeConfig()
 
 const searchQuery = ref('')
@@ -237,7 +236,6 @@ function toggleLocale() {
 }
 
 onMounted(() => {
-  fetchCategories()
   document.addEventListener('click', (e) => {
     const t = e.target as HTMLElement
     if (!t.closest('[data-currency-toggle]')) currencyOpen.value = false

@@ -409,7 +409,8 @@
                          rounded-xl py-6 cursor-pointer hover:border-[--color-primary-light] transition-colors"
                 >
                   <Icon name="lucide:upload-cloud" class="w-7 h-7 text-gray-400" />
-                  <span class="text-sm text-gray-500">Cliquez pour uploader (max 10 Mo)</span>
+                  <span class="text-sm text-gray-500">Cliquez pour uploader</span>
+                  <span class="text-xs text-gray-400">Format carré recommandé · min. 1200×1200 px · max 5 Mo</span>
                   <input type="file" accept="image/*" multiple class="hidden" @change="uploadImages" />
                 </label>
                 <div v-if="uploadingImages" class="flex items-center gap-2 mt-2 text-sm text-gray-500">

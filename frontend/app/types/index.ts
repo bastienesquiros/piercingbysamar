@@ -6,6 +6,7 @@ export interface Category {
   name: string
   slug: string
   description: string | null
+  imageUrl: string | null
   children: Category[]
 }
 

@@ -23,6 +23,7 @@
         <table class="w-full text-sm">
           <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide border-b border-gray-100">
             <tr>
+              <th class="text-left px-5 py-3">Image</th>
               <th class="text-left px-5 py-3">Nom</th>
               <th class="text-left px-5 py-3">Slug</th>
               <th class="text-left px-5 py-3">Parent</th>
@@ -32,6 +33,14 @@
           </thead>
           <tbody class="divide-y divide-gray-50">
             <tr v-for="cat in categories" :key="cat.id" class="hover:bg-gray-50/50 transition-colors">
+              <td class="px-5 py-3">
+                <div v-if="cat.imageUrl" class="w-10 h-10 rounded-lg overflow-hidden border border-gray-100">
+                  <img :src="cat.imageUrl" :alt="cat.name" class="w-full h-full object-cover" />
+                </div>
+                <div v-else class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                  <Icon name="lucide:image" class="w-4 h-4 text-gray-300" />
+                </div>
+              </td>
               <td class="px-5 py-3 font-medium text-gray-800">{{ cat.name }}</td>
               <td class="px-5 py-3 text-gray-500 font-mono text-xs">{{ cat.slug }}</td>
               <td class="px-5 py-3 text-gray-500 text-xs">{{ parentName(cat.parentId) }}</td>
@@ -98,6 +107,36 @@
               <label class="label">Description</label>
               <textarea v-model="form.description" class="input" rows="3" placeholder="Description optionnelle…" />
             </div>
+
+            <!-- Image (uniquement en édition) -->
+            <div v-if="editingId">
+              <label class="label">Image</label>
+
+              <div v-if="currentImageUrl" class="mb-3 relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                <img :src="currentImageUrl" alt="Image catégorie" class="w-full h-full object-cover" />
+                <button
+                  class="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/40 transition-colors group"
+                  :disabled="imageUploading"
+                  title="Supprimer l'image"
+                  @click="removeImage"
+                >
+                  <Icon name="lucide:trash-2" class="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" />
+                </button>
+              </div>
+
+              <label class="btn-outline py-2 px-3 text-sm cursor-pointer inline-flex items-center gap-2">
+                <Icon name="lucide:upload" class="w-4 h-4" />
+                <span>{{ currentImageUrl ? 'Changer l\'image' : 'Ajouter une image' }}</span>
+                <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageSelected" />
+              </label>
+
+              <p class="text-xs text-gray-400 mt-1.5">Format carré · min. 400×400 px · max 5 Mo</p>
+
+              <p v-if="imageUploading" class="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                <Icon name="lucide:loader-2" class="w-3 h-3 animate-spin" />
+                Upload en cours…
+              </p>
+            </div>
           </div>
 
           <!-- Panel footer -->
@@ -152,6 +191,9 @@ const form = reactive({
   parentId: null as number | null,
 })
 
+const currentImageUrl = ref<string | null>(null)
+const imageUploading = ref(false)
+
 const initialForm = reactive({ ...form })
 
 const isDirty = computed(() =>
@@ -170,6 +212,7 @@ function resetForm() {
   form.slug = ''
   form.description = ''
   form.parentId = null
+  currentImageUrl.value = null
   snapshotForm()
 }
 
@@ -186,6 +229,7 @@ function openEdit(cat: Category) {
   form.slug = cat.slug
   form.description = cat.description ?? ''
   form.parentId = cat.parentId
+  currentImageUrl.value = cat.imageUrl
   snapshotForm()
   panelError.value = null
   panelOpen.value = true
@@ -233,6 +277,43 @@ async function save() {
     toastError(panelError.value!)
   } finally {
     saving.value = false
+  }
+}
+
+async function onImageSelected(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file || !editingId.value) return
+  imageUploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const updated = await post<Category>(
+      `/api/admin/categories/${editingId.value}/image`,
+      formData,
+      { headers: headers.value },
+    )
+    currentImageUrl.value = updated.imageUrl
+    await refresh()
+    success('Image mise à jour.')
+  } catch (e: any) {
+    toastError(e?.data?.message ?? 'Erreur lors de l\'upload.')
+  } finally {
+    imageUploading.value = false
+  }
+}
+
+async function removeImage() {
+  if (!editingId.value) return
+  imageUploading.value = true
+  try {
+    await del(`/api/admin/categories/${editingId.value}/image`, { headers: headers.value })
+    currentImageUrl.value = null
+    await refresh()
+    success('Image supprimée.')
+  } catch (e: any) {
+    toastError(e?.data?.message ?? 'Erreur lors de la suppression.')
+  } finally {
+    imageUploading.value = false
   }
 }
 

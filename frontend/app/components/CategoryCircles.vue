@@ -9,13 +9,17 @@
     >
       <div class="category-circle-img relative">
         <NuxtImg
-          :src="`/images/categories/${cat.slug}.avif`"
+          v-if="categoryImage(cat.slug)"
+          :src="categoryImage(cat.slug)!"
           :alt="cat.label"
           width="96"
           height="96"
           class="w-full h-full object-cover"
           loading="lazy"
         />
+        <div v-else class="w-full h-full flex items-center justify-center bg-[--color-background-soft]">
+          <Icon name="lucide:image" class="w-8 h-8 text-[--color-border]" />
+        </div>
         <!-- Tooltip -->
         <div class="
           pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2
@@ -35,6 +39,7 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 const route = useRoute()
+const { categoryImage } = useCategoryImage()
 
 const categories = [
   { slug: 'lobe',   label: 'Lobe',       placement: 'Lobe de l\'oreille' },

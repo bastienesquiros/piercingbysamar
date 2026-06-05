@@ -171,9 +171,7 @@ const MATERIALS: { label: string; value: string }[] = [
 const route = useRoute()
 const router = useRouter()
 const { get } = useApi()
-const { categories: allCategories, fetchCategories } = useCategories()
-
-onMounted(() => fetchCategories())
+const { categories: allCategories } = useCategories()
 
 const filtersOpen = ref(false)
 
