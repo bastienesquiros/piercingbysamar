@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">🛍️ Nouvelle commande reçue</h2>
+
+        <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+            <p style="margin:0;font-weight:600">
+                <span th:text="${orderReference}">REF</span> — <span th:text="${typeLabel}">Livraison</span>
+            </p>
+            <p style="margin:6px 0 0;color:#666">
+                <span th:text="${customerName}">Nom</span> · <span th:text="${customerEmail}">email</span>
+            </p>
+            <p th:if="${customerPhone != null}" style="margin:6px 0 0">
+                <a th:href="'https://wa.me/' + ${customerPhone}" style="color:#25D366;font-weight:600">
+                    💬 <span th:text="${customerPhone}"></span>
+                </a>
+            </p>
+        </div>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+    </section>
+</div>
+
+</body>
+</html>

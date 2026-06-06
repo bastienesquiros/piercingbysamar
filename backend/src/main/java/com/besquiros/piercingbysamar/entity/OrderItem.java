@@ -32,6 +32,10 @@ public class OrderItem {
     @Column(length = 255)
     private String snapshotVariantLabel;
 
+    /** URL de la première image du produit au moment de l'achat (nullable) */
+    @Column(length = 500)
+    private String snapshotImageUrl;
+
     /** Prix unitaire en centimes au moment de l'achat */
     @Column(nullable = false)
     private Integer unitPriceCents;

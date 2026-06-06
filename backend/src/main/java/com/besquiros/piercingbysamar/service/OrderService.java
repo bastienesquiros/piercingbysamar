@@ -15,6 +15,7 @@ import com.besquiros.piercingbysamar.repository.OrderRepository;
 import com.besquiros.piercingbysamar.repository.ProductVariantRepository;
 import com.besquiros.piercingbysamar.util.OrderReferenceUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -72,6 +74,7 @@ public class OrderService {
                     .productVariant(variant)
                     .snapshotProductName(variant.getProduct().getName())
                     .snapshotVariantLabel(buildVariantLabel(variant))
+                    .snapshotImageUrl(resolveImageUrl(variant))
                     .unitPriceCents(variant.getPriceCents())
                     .quantity(itemReq.quantity())
                     .totalCents(lineTotal)
@@ -198,6 +201,26 @@ public class OrderService {
                 variant.setStock(variant.getStock() + item.getQuantity());
                 variantRepository.save(variant);
             }
+        }
+    }
+
+    /**
+     * Résout l'URL de la première image disponible pour un variant.
+     * Priorité : image liée au variant > première image du produit.
+     * Retourne null en cas d'erreur ou d'absence d'image (ne bloque jamais la commande).
+     */
+    private String resolveImageUrl(ProductVariant variant) {
+        try {
+            var images = variant.getProduct().getImages();
+            if (images == null || images.isEmpty()) return null;
+            return images.stream()
+                    .filter(img -> img.getVariant() != null && img.getVariant().getId().equals(variant.getId()))
+                    .map(img -> img.getR2Url())
+                    .findFirst()
+                    .orElseGet(() -> images.get(0).getR2Url());
+        } catch (Exception e) {
+            log.warn("Impossible de résoudre l'image pour la variante {} : {}", variant.getId(), e.getMessage());
+            return null;
         }
     }
 

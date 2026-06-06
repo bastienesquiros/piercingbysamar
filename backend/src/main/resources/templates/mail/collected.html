@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Merci pour votre visite ! ✨</h2>
+        <p>Bonjour <span th:text="${customerName}">Prénom</span>,</p>
+        <p>
+            Votre commande <strong th:text="${orderReference}">REF</strong> a bien été retirée en boutique.
+            Merci de votre confiance !
+        </p>
+        <p style="color:#666">Nous espérons vous revoir bientôt chez Piercing by Samar.</p>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+    </section>
+</div>
+
+</body>
+</html>

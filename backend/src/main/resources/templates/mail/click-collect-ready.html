@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Votre commande est prête ! 🎉</h2>
+        <p>Bonjour <span th:text="${customerName}">Prénom</span>,</p>
+        <p>Votre commande <strong th:text="${orderReference}">REF</strong> est prête à être retirée en boutique.</p>
+
+        <div style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+            <p style="margin:0;font-weight:600">Informations de retrait</p>
+            <p style="margin:8px 0 0">
+                Pensez à vous munir de votre numéro de commande : <strong th:text="${orderReference}">REF</strong>
+            </p>
+            <p style="margin:4px 0 0;color:#666">Paiement accepté : espèces et virement</p>
+            <p style="margin:8px 0 0">
+                <a href="https://maps.app.goo.gl/b4qDcoBaafQaAqzMA" style="color:#C4A882;font-size:13px">
+                    📍 Voir la boutique sur Google Maps
+                </a>
+            </p>
+        </div>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+    </section>
+</div>
+
+</body>
+</html>

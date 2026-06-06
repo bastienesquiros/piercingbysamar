@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Merci pour votre commande, <span th:text="${customerName}">Prénom</span> !</h2>
+        <p>Nous avons bien reçu votre commande <strong th:text="${orderReference}">REF</strong>.</p>
+        <p>Mode : <strong th:text="${typeLabel}">Livraison</strong></p>
+
+        <p th:if="${shippingAddress != null}" style="margin:4px 0">
+            📍 <span th:text="${shippingAddress}"></span>,
+            <span th:text="${shippingPostalCode}"></span>
+            <span th:text="${shippingCity}"></span>,
+            <span th:text="${shippingCountry}"></span>
+        </p>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+        <!-- Click & Collect -->
+        <div th:if="${isClickCollect}" style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+            <p style="margin:0;font-weight:600">Click &amp; Collect — Marrakech</p>
+            <p style="margin:8px 0 0;color:#666">Paiement sur place : espèces ou virement.</p>
+            <p style="margin:8px 0 0">
+                <a href="https://maps.app.goo.gl/b4qDcoBaafQaAqzMA" style="color:#C4A882;font-size:13px">
+                    📍 Voir la boutique sur Google Maps
+                </a>
+            </p>
+        </div>
+
+        <!-- Livraison : paiement en attente -->
+        <div th:unless="${isClickCollect}" style="background:#FAF7F4;border-left:4px solid #C4A882;padding:16px;margin:16px 0;border-radius:4px">
+            <p style="margin:0;font-weight:600">Paiement en cours de traitement</p>
+            <p style="margin:8px 0 0;color:#666">
+                Vous recevrez un second email dès que votre paiement Stripe sera confirmé et votre commande mise en préparation.
+            </p>
+        </div>
+
+    </section>
+</div>
+
+</body>
+</html>

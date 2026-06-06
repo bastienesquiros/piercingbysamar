@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Paiement confirmé ✓</h2>
+        <p>Bonjour <span th:text="${customerName}">Prénom</span>,</p>
+        <p>Votre paiement pour la commande <strong th:text="${orderReference}">REF</strong> a bien été reçu.</p>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+        <p style="margin-top:24px;color:#666">
+            Votre commande est en cours de préparation. Vous recevrez un email dès qu'elle sera expédiée.
+        </p>
+
+    </section>
+</div>
+
+</body>
+</html>

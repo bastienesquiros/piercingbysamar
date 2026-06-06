@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Votre commande est en route ! 🚚</h2>
+        <p>Bonjour <span th:text="${customerName}">Prénom</span>,</p>
+        <p>Votre commande <strong th:text="${orderReference}">REF</strong> vient d'être expédiée.</p>
+        <p>
+            Adresse de livraison :<br>
+            <strong>
+                <span th:text="${shippingAddress}"></span>,
+                <span th:text="${shippingPostalCode}"></span>
+                <span th:text="${shippingCity}"></span>,
+                <span th:text="${shippingCountry}"></span>
+            </strong>
+        </p>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+        <p style="margin-top:24px;color:#666">Si vous avez des questions, répondez simplement à cet email.</p>
+
+    </section>
+</div>
+
+</body>
+</html>

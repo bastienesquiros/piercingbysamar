@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<table th:fragment="items-table" style="width:100%;border-collapse:collapse;margin:16px 0">
+    <thead>
+        <tr style="color:#C4A882;font-size:12px;text-transform:uppercase">
+            <th style="text-align:left;padding-bottom:8px">Article</th>
+            <th style="text-align:right;padding-bottom:8px">Prix</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="item : ${items}">
+            <td style="padding:8px 0;border-bottom:1px solid #f0ece8">
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td th:if="${item.imageUrl() != null}" style="width:56px;padding-right:12px;vertical-align:middle">
+                            <img th:src="${item.imageUrl()}" th:alt="${item.name()}"
+                                 width="56" height="56"
+                                 style="width:56px;height:56px;object-fit:cover;border-radius:4px;display:block">
+                        </td>
+                        <td style="vertical-align:middle">
+                            <span th:text="${item.name()}"></span><span th:if="${item.label() != null and !#strings.isEmpty(item.label())}"> — <span th:text="${item.label()}"></span></span>
+                            &times; <span th:text="${item.quantity()}"></span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="padding:8px 0;border-bottom:1px solid #f0ece8;text-align:right;vertical-align:middle" th:text="${item.price()}"></td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td style="padding-top:12px;font-weight:700" th:text="${totalLabel}">Total</td>
+            <td style="padding-top:12px;font-weight:700;text-align:right" th:text="${total}">0 MAD</td>
+        </tr>
+    </tfoot>
+</table>
+
+</body>
+</html>
