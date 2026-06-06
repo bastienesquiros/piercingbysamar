@@ -61,6 +61,7 @@ public class SecurityConfig {
                 // Tags public (lecture)
                 .requestMatchers(HttpMethod.GET, "/api/tags").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/faq").permitAll()
+                // Stats et export → admin only (pas besoin de permitAll)
                 // Swagger (dev)
                 .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                 // Tout le reste → admin

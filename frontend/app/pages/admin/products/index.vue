@@ -2,11 +2,42 @@
   <div class="space-y-5">
 
     <!-- Header -->
-    <div class="flex items-center justify-end">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2">
+        <!-- Import stocks -->
+        <button class="btn-ghost py-2 px-3 text-sm flex items-center gap-1.5" @click="downloadTemplate">
+          <Icon name="lucide:download" class="w-4 h-4" />
+          Modèle stocks (.csv)
+        </button>
+        <label class="btn-ghost py-2 px-3 text-sm flex items-center gap-1.5 cursor-pointer">
+          <Icon v-if="importing" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+          <Icon v-else name="lucide:upload" class="w-4 h-4" />
+          Mettre à jour les stocks
+          <input type="file" accept=".csv,text/csv" class="hidden" :disabled="importing" @change="importStock" />
+        </label>
+      </div>
       <button class="btn-primary py-2 px-4 text-sm" @click="openCreate">
         <Icon name="lucide:plus" class="w-4 h-4" />
         Nouveau produit
       </button>
+    </div>
+
+    <!-- Résultat import -->
+    <div v-if="importResult" class="rounded-xl border p-4 text-sm space-y-2"
+      :class="importResult.errors.length ? 'border-orange-200 bg-orange-50' : 'border-green-200 bg-green-50'">
+      <div class="flex items-center justify-between">
+        <p class="font-semibold" :class="importResult.errors.length ? 'text-orange-700' : 'text-green-700'">
+          <Icon :name="importResult.errors.length ? 'lucide:alert-triangle' : 'lucide:check-circle'" class="w-4 h-4 inline mr-1" />
+          {{ importResult.updatedCount }} variante(s) mise(s) à jour
+          <span v-if="importResult.errors.length" class="ml-2 text-orange-600">· {{ importResult.errors.length }} erreur(s)</span>
+        </p>
+        <button class="text-gray-400 hover:text-gray-600" @click="importResult = null">
+          <Icon name="lucide:x" class="w-4 h-4" />
+        </button>
+      </div>
+      <ul v-if="importResult.errors.length" class="text-orange-600 space-y-0.5 text-xs">
+        <li v-for="e in importResult.errors" :key="e">{{ e }}</li>
+      </ul>
     </div>
 
     <!-- Filters -->
@@ -879,7 +910,59 @@ function formatPrice(cents: number) {
   if (!cents && cents !== 0) return '—'
   return Math.round(cents / 100) + ' MAD'
 }
+
+// ── Import stocks ──────────────────────────────────────────────
+const importing = ref(false)
+interface ImportResult { updatedCount: number; errors: string[]; updated: string[] }
+const importResult = ref<ImportResult | null>(null)
+
+async function downloadTemplate() {
+  const res = await fetch('/api/admin/import/stock-template.csv', { headers: auth.authHeader })
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = 'template_stocks.csv'; a.click()
+  URL.revokeObjectURL(url)
+}
+
+async function importStock(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  importing.value = true
+  importResult.value = null
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const result = await $fetch<ImportResult>('/api/admin/import/stock', {
+      method: 'POST', baseURL: '', headers: auth.authHeader, body: fd,
+    })
+    importResult.value = result
+    if (result.updatedCount > 0) { await refresh(); refreshPanelProduct() }
+    if (!result.errors.length) success(`${result.updatedCount} stock(s) mis à jour.`)
+  } catch (err: any) {
+    toastError(err?.data?.message ?? 'Erreur lors de l\'import')
+  } finally {
+    importing.value = false
+    ;(e.target as HTMLInputElement).value = ''
+  }
+}
+
+function refreshPanelProduct() {
+  if (!editingId.value || !editingProduct.value) return
+  get<ProductDetail>(`/api/admin/products/${editingId.value}`, { headers: headers.value })
+    .then(p => { if (p) editingProduct.value = p })
+    .catch(() => {})
+}
+
 useSeoMeta({ title: 'Produits — Admin', robots: 'noindex' })
+
+const route = useRoute()
+onMounted(async () => {
+  const editId = route.query.edit
+  if (editId) {
+    await openEdit(Number(editId))
+  }
+})
 </script>
 
 <style scoped>
