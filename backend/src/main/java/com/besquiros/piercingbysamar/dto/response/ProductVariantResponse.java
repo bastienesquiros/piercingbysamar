@@ -7,6 +7,8 @@ public record ProductVariantResponse(
         String color,
         Integer priceCents,
         Integer stock,
+        Integer reservedStock,
+        Integer availableStock,
         boolean inStock,
         boolean active
 ) {}

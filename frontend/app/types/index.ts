@@ -32,6 +32,8 @@ export interface ProductVariant {
   color: string | null
   priceCents: number
   stock: number
+  reservedStock: number
+  availableStock: number
   inStock: boolean
   active: boolean
 }
@@ -41,6 +43,7 @@ export interface ProductImage {
   r2Url: string
   position: number
   altText: string | null
+  variantId: number | null
 }
 
 export interface ProductDetail {

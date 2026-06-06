@@ -37,8 +37,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            "WHERE p.active = true " +
            "AND (LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%')) " +
            "     OR (v.active = true AND LOWER(v.sku) LIKE LOWER(CONCAT('%', :q, '%')))) " +
-           "AND EXISTS (SELECT v2 FROM ProductVariant v2 WHERE v2.product = p AND v2.active = true) " +
-           "ORDER BY CASE WHEN LOWER(p.name) LIKE LOWER(CONCAT(:q, '%')) THEN 0 ELSE 1 END, p.name ASC")
+           "AND EXISTS (SELECT v2 FROM ProductVariant v2 WHERE v2.product = p AND v2.active = true)")
     Page<Product> searchByName(@Param("q") String query, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.active = true " +

@@ -76,6 +76,11 @@
           </p>
           <ul class="space-y-2">
             <li>
+              <NuxtLink :to="localePath('/faq')" class="text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors">
+                FAQ
+              </NuxtLink>
+            </li>
+            <li>
               <NuxtLink :to="localePath('/legal')" class="text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors">
                 {{ $t('footer.legal') }}
               </NuxtLink>

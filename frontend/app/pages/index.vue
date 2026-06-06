@@ -21,12 +21,15 @@
     <!-- Trust bar: Click & Collect + Shipping + Payment -->
     <div class="bg-white border-b border-[--color-border]">
       <div class="container-site">
-        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[--color-border] py-3">
+        <div
+          class="grid grid-cols-1 divide-y sm:divide-y-0 sm:divide-x divide-[--color-border] py-3"
+          :class="stripeEnabled ? 'sm:grid-cols-3' : 'sm:grid-cols-2'"
+        >
           <div class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
             <Icon name="lucide:store" class="w-4 h-4 text-[--color-primary] shrink-0" />
             <span>{{ $t('product.click_collect_badge') }}</span>
           </div>
-          <div class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
+          <div v-if="stripeEnabled" class="flex items-center justify-center gap-2.5 py-2 sm:py-0 text-sm text-[--color-text-muted]">
             <Icon name="lucide:truck" class="w-4 h-4 text-[--color-primary] shrink-0" />
             <span>{{ $t('home.trust_shipping') }}</span>
           </div>

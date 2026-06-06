@@ -297,7 +297,14 @@
                         {{ [v.size, v.color].filter(Boolean).join(' · ') || '—' }}
                         <span v-if="!v.active" class="ml-2 text-xs text-orange-500">(inactif)</span>
                       </p>
-                      <p class="text-gray-400 text-xs">{{ v.sku }} · {{ formatPrice(v.priceCents) }} · stock : {{ v.stock }}</p>
+                      <p class="text-gray-400 text-xs">
+                        {{ v.sku }} · {{ formatPrice(v.priceCents) }} ·
+                        dispo : <span :class="v.availableStock === 0 ? 'text-red-400 font-medium' : ''">{{ v.availableStock }}</span>
+                        <template v-if="v.reservedStock > 0">
+                          · <span class="text-amber-500">{{ v.reservedStock }} réservé{{ v.reservedStock > 1 ? 's' : '' }}</span>
+                        </template>
+                        · total : {{ v.stock }}
+                      </p>
                     </div>
                     <div class="flex items-center gap-2">
                       <button class="text-gray-400 hover:text-gray-700" @click="openEditVariant(v)">
@@ -360,66 +367,35 @@
                 <span class="text-[10px] text-gray-400 bg-gray-100 rounded px-1.5 py-0.5">auto-sauvegardé</span>
               </div>
 
-              <!-- Existing images -->
-              <div v-if="editingProduct.images.length" class="space-y-3">
-                <div
-                  v-for="(img, idx) in sortedImages"
-                  :key="img.id"
-                  class="flex gap-3 items-center bg-gray-50 rounded-xl p-2"
-                >
-                  <!-- Thumbnail -->
-                  <div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-                    <NuxtImg :src="img.r2Url" :alt="img.altText ?? ''" width="64" height="64" class="w-full h-full object-cover" />
-                  </div>
-
-                  <!-- Alt text input -->
-                  <input
-                    :value="img.altText ?? ''"
-                    type="text"
-                    class="input py-1.5 text-sm flex-1"
-                    placeholder="Description de l'image (SEO)"
-                    @change="updateImageAlt(img.id, ($event.target as HTMLInputElement).value)"
-                  />
-
-                  <!-- Reorder + delete -->
-                  <div class="flex flex-col gap-1">
-                    <button
-                      class="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      :disabled="idx === 0"
-                      title="Monter"
-                      @click="moveImage(img.id, idx, -1)"
-                    >
-                      <Icon name="lucide:chevron-up" class="w-4 h-4" />
-                    </button>
-                    <button
-                      class="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      :disabled="idx === sortedImages.length - 1"
-                      title="Descendre"
-                      @click="moveImage(img.id, idx, 1)"
-                    >
-                      <Icon name="lucide:chevron-down" class="w-4 h-4" />
-                    </button>
-                  </div>
-                  <button class="p-1.5 text-red-400 hover:text-red-600" title="Supprimer" @click="deleteImage(img.id)">
-                    <Icon name="lucide:trash-2" class="w-4 h-4" />
-                  </button>
-                </div>
+              <!-- Images produit (sans variante) -->
+              <div class="space-y-2">
+                <p class="text-xs text-gray-500 font-medium">Photos générales du produit</p>
+                <ImageGalleryEditor
+                  :images="sortedImages.filter(i => !i.variantId)"
+                  :uploading="uploadingImages"
+                  @delete="deleteImage"
+                  @move="moveImage"
+                  @update-alt="updateImageAlt"
+                  @upload="(e) => uploadImagesForVariant(e, null)"
+                />
               </div>
 
-              <!-- Upload -->
-              <div>
-                <label
-                  class="flex flex-col items-center gap-2 border-2 border-dashed border-gray-200
-                         rounded-xl py-6 cursor-pointer hover:border-[--color-primary-light] transition-colors"
-                >
-                  <Icon name="lucide:upload-cloud" class="w-7 h-7 text-gray-400" />
-                  <span class="text-sm text-gray-500">Cliquez pour uploader</span>
-                  <span class="text-xs text-gray-400">Format carré recommandé · min. 1200×1200 px · max 5 Mo</span>
-                  <input type="file" accept="image/*" multiple class="hidden" @change="uploadImages" />
-                </label>
-                <div v-if="uploadingImages" class="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                  <Icon name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-                  Upload en cours…
+              <!-- Images par variante -->
+              <div v-if="editingProduct.variants.length" class="space-y-3">
+                <p class="text-xs text-gray-500 font-medium">Photos par variante <span class="text-gray-400 font-normal">(remplacent les photos générales lors de la sélection)</span></p>
+                <div v-for="v in editingProduct.variants" :key="v.id" class="border border-gray-100 rounded-xl p-3 space-y-2">
+                  <p class="text-xs font-semibold text-gray-600">
+                    {{ [v.size, v.color].filter(Boolean).join(' · ') || v.sku }}
+                  </p>
+                  <ImageGalleryEditor
+                    :images="sortedImages.filter(i => i.variantId === v.id)"
+                    :uploading="uploadingVariantId === v.id"
+                    :compact="true"
+                    @delete="deleteImage"
+                    @move="moveImage"
+                    @update-alt="updateImageAlt"
+                    @upload="(e) => uploadImagesForVariant(e, v.id)"
+                  />
                 </div>
               </div>
             </section>
@@ -788,17 +764,22 @@ async function saveVariant(variantId: number) {
 
 // ── Images ─────────────────────────────────────────────────────
 const uploadingImages = ref(false)
+const uploadingVariantId = ref<number | null>(null)
 
-async function uploadImages(e: Event) {
+async function uploadImagesForVariant(e: Event, variantId: number | null) {
   if (!editingId.value) return
   const files = (e.target as HTMLInputElement).files
   if (!files?.length) return
-  uploadingImages.value = true
+
+  if (variantId === null) uploadingImages.value = true
+  else uploadingVariantId.value = variantId
+
   let successCount = 0
   let errorCount = 0
   for (const file of Array.from(files)) {
     const fd = new FormData()
     fd.append('file', file)
+    if (variantId !== null) fd.append('variantId', String(variantId))
     try {
       await $fetch(`/api/admin/products/${editingId.value}/images`, {
         method: 'POST',
@@ -816,11 +797,11 @@ async function uploadImages(e: Event) {
   const updated = await get<ProductDetail>(`/api/admin/products/${editingId.value}`, { headers: headers.value }).catch(() => null)
   if (updated) editingProduct.value = updated
   uploadingImages.value = false
+  uploadingVariantId.value = null
   refresh()
   if (successCount > 0 && errorCount === 0) success(`${successCount} image${successCount > 1 ? 's' : ''} uploadée${successCount > 1 ? 's' : ''}.`)
   else if (successCount > 0) success(`${successCount} uploadée(s), ${errorCount} échouée(s).`)
-  // si que des erreurs, les toasts individuels suffisent
-  ;(e.target as HTMLInputElement).value = '' // reset input pour permettre re-upload du même fichier
+  ;(e.target as HTMLInputElement).value = ''
 }
 
 async function deleteImage(imageId: number) {
@@ -858,16 +839,19 @@ async function updateImageAlt(imageId: number, altText: string) {
 
 async function moveImage(imageId: number, currentIdx: number, direction: -1 | 1) {
   if (!editingId.value || !editingProduct.value) return
-  const imgs = [...sortedImages.value]
+
+  // Trouver l'image et travailler dans son groupe (même variantId)
+  const targetImage = sortedImages.value.find(i => i.id === imageId)
+  if (!targetImage) return
+  const imgs = sortedImages.value.filter(i => i.variantId === targetImage.variantId)
+
   const swapIdx = currentIdx + direction
   if (swapIdx < 0 || swapIdx >= imgs.length) return
 
-  // Use index as canonical position (handles legacy images all at position 0)
   const posA = currentIdx
   const posB = swapIdx
   imgs[currentIdx].position = posB
   imgs[swapIdx].position = posA
-  // Update locally
   editingProduct.value.images = editingProduct.value.images.map(img => {
     const updated = imgs.find(i => i.id === img.id)
     return updated ?? img

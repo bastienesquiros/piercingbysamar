@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/exchange-rates").permitAll()
                 // Tags public (lecture)
                 .requestMatchers(HttpMethod.GET, "/api/tags").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/faq").permitAll()
                 // Swagger (dev)
                 .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                 // Tout le reste → admin

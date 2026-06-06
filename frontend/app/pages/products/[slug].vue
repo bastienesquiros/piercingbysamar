@@ -185,8 +185,8 @@
               <span :class="selectedVariant.inStock ? 'text-green-700' : 'text-red-500'">
                 {{ selectedVariant.inStock ? $t('product.in_stock') : $t('product.out_of_stock') }}
               </span>
-              <span v-if="selectedVariant.inStock && selectedVariant.stock <= 5" class="text-amber-600 text-xs font-medium">
-                · {{ $t('product.low_stock', { n: selectedVariant.stock }) }}
+              <span v-if="selectedVariant.inStock && selectedVariant.availableStock <= 5" class="text-amber-600 text-xs font-medium">
+                · {{ $t('product.low_stock', { n: selectedVariant.availableStock }) }}
               </span>
             </div>
             <span class="text-xs text-[--color-text-muted] opacity-60">
@@ -275,7 +275,7 @@
               <Icon name="lucide:shield-check" class="w-4 h-4 text-[--color-primary]" />
               {{ $t('product.trust_materials') }}
             </p>
-            <p class="flex items-center gap-2">
+            <p v-if="stripeEnabled" class="flex items-center gap-2">
               <Icon name="lucide:truck" class="w-4 h-4 text-[--color-primary]" />
               {{ $t('product.trust_shipping') }}
             </p>
@@ -312,10 +312,23 @@ if (!product.value) {
 }
 
 // ── Gallery ────────────────────────────────────────────────────
-const sortedImages = computed(() =>
+const allImages = computed(() =>
   [...(product.value?.images ?? [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 )
-const activeImageId = ref<number | null>(sortedImages.value[0]?.id ?? null)
+
+// Images à afficher : celles de la variante sélectionnée, sinon celles sans variante, sinon toutes
+const sortedImages = computed(() => {
+  const all = allImages.value
+  if (!selectedVariant.value) {
+    const noVariant = all.filter((i) => !i.variantId)
+    return noVariant.length ? noVariant : all
+  }
+  const variantImgs = all.filter((i) => i.variantId === selectedVariant.value!.id)
+  if (variantImgs.length) return variantImgs
+  const noVariant = all.filter((i) => !i.variantId)
+  return noVariant.length ? noVariant : all
+})
+const activeImageId = ref<number | null>(null)
 const currentImage = computed(() =>
   sortedImages.value.find((i) => i.id === activeImageId.value) ?? sortedImages.value[0] ?? null
 )
@@ -364,6 +377,11 @@ const selectedVariant = computed<ProductVariant | null>(() => {
   }) ?? null
 })
 
+// Reset galerie à chaque changement de variante (doit être après selectedVariant)
+watch(sortedImages, (imgs) => {
+  activeImageId.value = imgs[0]?.id ?? null
+}, { immediate: true })
+
 // ── Price display ──────────────────────────────────────────────
 const priceRange = computed(() => {
   const prices = activeVariants.value.map((v) => v.priceCents)
@@ -375,7 +393,7 @@ const priceRange = computed(() => {
 
 // ── Cart ───────────────────────────────────────────────────────
 const quantity = ref(1)
-const maxQty = computed(() => selectedVariant.value?.stock ?? null)
+const maxQty = computed(() => selectedVariant.value?.availableStock ?? null)
 const canAddToCart = computed(() =>
   !hasVariants.value
     ? false

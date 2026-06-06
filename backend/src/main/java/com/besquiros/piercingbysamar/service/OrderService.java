@@ -61,7 +61,7 @@ public class OrderService {
 
             if (!variant.isActive()) throw new BadRequestException("Variante inactive : " + variant.getSku());
             if (!variant.isInStock()) throw new BadRequestException("Variante en rupture de stock : " + variant.getSku());
-            if (variant.getStock() < itemReq.quantity()) {
+            if (variant.getAvailableStock() < itemReq.quantity()) {
                 throw new BadRequestException("Stock insuffisant pour : " + variant.getSku());
             }
 
@@ -101,6 +101,10 @@ public class OrderService {
 
         items.forEach(item -> item.setOrder(order));
         Order saved = orderRepository.save(order);
+
+        // Réserver le stock dès la création de la commande
+        reserveStock(saved);
+
         mailService.sendOrderConfirmation(saved);
         mailService.sendAdminNewOrder(saved);
         return orderMapper.toResponse(saved);
@@ -120,17 +124,30 @@ public class OrderService {
     public OrderResponse updateStatus(Long id, String status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Commande introuvable : " + id));
+        OrderStatus previousStatus = order.getStatus();
         OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
         order.setStatus(newStatus);
         Order saved = orderRepository.save(order);
 
+        boolean wasReserved = previousStatus == OrderStatus.PENDING
+                || previousStatus == OrderStatus.CLICK_COLLECT_PENDING;
+
         if (newStatus == OrderStatus.PAID) {
+            // Réservation → consommation réelle du stock
             decrementStock(saved);
+            releaseReservation(saved);
         } else if (newStatus == OrderStatus.READY) {
             decrementStock(saved);
+            releaseReservation(saved);
             mailService.sendClickCollectReady(saved);
         } else if (newStatus == OrderStatus.CANCELLED) {
-            reinstateStock(saved);
+            if (wasReserved) {
+                // Commande annulée avant paiement → libérer la réservation
+                releaseReservation(saved);
+            } else {
+                // Commande annulée après paiement → réintégrer le stock physique
+                reinstateStock(saved);
+            }
             mailService.sendCancellation(saved);
         } else if (newStatus == OrderStatus.SHIPPED) {
             mailService.sendShippingNotification(saved);
@@ -144,19 +161,43 @@ public class OrderService {
         return orderMapper.toResponse(saved);
     }
 
+    private void reserveStock(Order order) {
+        for (OrderItem item : order.getItems()) {
+            ProductVariant variant = item.getProductVariant();
+            if (variant != null) {
+                variant.setReservedStock((variant.getReservedStock() != null ? variant.getReservedStock() : 0) + item.getQuantity());
+                variantRepository.save(variant);
+            }
+        }
+    }
+
+    private void releaseReservation(Order order) {
+        for (OrderItem item : order.getItems()) {
+            ProductVariant variant = item.getProductVariant();
+            if (variant != null) {
+                variant.setReservedStock(Math.max(0, (variant.getReservedStock() != null ? variant.getReservedStock() : 0) - item.getQuantity()));
+                variantRepository.save(variant);
+            }
+        }
+    }
+
     private void decrementStock(Order order) {
         for (OrderItem item : order.getItems()) {
             ProductVariant variant = item.getProductVariant();
-            variant.setStock(Math.max(0, variant.getStock() - item.getQuantity()));
-            variantRepository.save(variant);
+            if (variant != null) {
+                variant.setStock(Math.max(0, variant.getStock() - item.getQuantity()));
+                variantRepository.save(variant);
+            }
         }
     }
 
     private void reinstateStock(Order order) {
         for (OrderItem item : order.getItems()) {
             ProductVariant variant = item.getProductVariant();
-            variant.setStock(variant.getStock() + item.getQuantity());
-            variantRepository.save(variant);
+            if (variant != null) {
+                variant.setStock(variant.getStock() + item.getQuantity());
+                variantRepository.save(variant);
+            }
         }
     }
 
