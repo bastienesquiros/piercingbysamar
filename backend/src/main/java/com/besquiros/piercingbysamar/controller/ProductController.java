@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -46,5 +48,13 @@ public class ProductController {
     @GetMapping("/{slug}")
     public ResponseEntity<ProductDetailResponse> getBySlug(@PathVariable String slug) {
         return ResponseEntity.ok(productService.getBySlug(slug));
+    }
+
+    @GetMapping("/{slug}/related")
+    public ResponseEntity<List<ProductSummaryResponse>> getRelated(
+            @PathVariable String slug,
+            @RequestParam(defaultValue = "4") int limit
+    ) {
+        return ResponseEntity.ok(productService.getRelated(slug, limit));
     }
 }

@@ -287,11 +287,19 @@
         </div>
       </div>
     </div>
+
+    <!-- ── Cross-sell ─────────────────────────────────────────── -->
+    <div v-if="relatedProducts && relatedProducts.length" class="container-site pb-16">
+      <h2 class="text-lg font-semibold text-[--color-text] mb-6">Vous aimerez aussi</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <ProductCard v-for="p in relatedProducts" :key="p.id" :product="p" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ProductDetail, ProductVariant } from '~/types'
+import type { ProductDetail, ProductSummary, ProductVariant } from '~/types'
 
 const route = useRoute()
 const localePath = useLocalePath()
@@ -310,6 +318,13 @@ const { data: product } = await useAsyncData(
 if (!product.value) {
   await showError({ statusCode: 404, statusMessage: 'Produit introuvable' })
 }
+
+// ── Related products ───────────────────────────────────────────
+const { data: relatedProducts } = await useAsyncData(
+  `related-${route.params.slug}`,
+  () => get<ProductSummary[]>(`/api/products/${route.params.slug}/related?limit=4`),
+  { default: () => [] as ProductSummary[] }
+)
 
 // ── Gallery ────────────────────────────────────────────────────
 const allImages = computed(() =>

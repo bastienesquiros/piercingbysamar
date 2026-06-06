@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -64,4 +65,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("name") String name,
             @Param("active") boolean active,
             Pageable pageable);
+
+    @Query(value = "SELECT p.id, COUNT(pt2.tag_id) AS common_tags " +
+                   "FROM products p " +
+                   "LEFT JOIN product_tags pt2 ON pt2.product_id = p.id " +
+                   "  AND pt2.tag_id IN (SELECT tag_id FROM product_tags WHERE product_id = :id) " +
+                   "WHERE p.id != :id AND p.active = true AND p.category_id = :categoryId " +
+                   "AND EXISTS (SELECT 1 FROM product_variants v WHERE v.product_id = p.id AND v.active = true) " +
+                   "GROUP BY p.id " +
+                   "ORDER BY common_tags DESC, RANDOM() " +
+                   "LIMIT :limit",
+           nativeQuery = true)
+    List<java.math.BigInteger> findRelatedIds(@Param("id") Long id,
+                              @Param("categoryId") Long categoryId,
+                              @Param("limit") int limit);
 }

@@ -201,4 +201,14 @@ public class ProductService {
                 page.isLast()
         );
     }
+
+    public java.util.List<ProductSummaryResponse> getRelated(String slug, int limit) {
+        Product product = productRepository.findBySlugAndActiveTrue(slug)
+                .orElseThrow(() -> new NotFoundException("Produit introuvable : " + slug));
+        java.util.List<Long> ids = productRepository.findRelatedIds(product.getId(), product.getCategory().getId(), limit)
+                .stream().map(java.math.BigInteger::longValue).toList();
+        if (ids.isEmpty()) return java.util.List.of();
+        return productRepository.findAllById(ids)
+                .stream().map(productMapper::toSummary).toList();
+    }
 }
