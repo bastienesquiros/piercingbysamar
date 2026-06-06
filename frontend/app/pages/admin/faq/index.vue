@@ -37,7 +37,7 @@
         <li
           v-for="(item, idx) in items"
           :key="item.id"
-          class="bg-gray-50 rounded-xl px-4 py-3 space-y-2"
+          class="bg-[--color-background-soft] rounded-xl px-4 py-3 space-y-2"
         >
           <!-- Vue réduite -->
           <div v-if="editingId !== item.id" class="flex items-start justify-between gap-3">
@@ -51,23 +51,23 @@
             <div class="flex items-center gap-1 shrink-0">
               <!-- Réordonner -->
               <div class="flex flex-col">
-                <button class="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30" :disabled="idx === 0" @click="move(item, idx, -1)">
+                <button class="p-1 text-[--color-text-muted] hover:text-[--color-text] disabled:opacity-30" :disabled="idx === 0" @click="move(item, idx, -1)">
                   <Icon name="lucide:chevron-up" class="w-3.5 h-3.5" />
                 </button>
-                <button class="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30" :disabled="idx === items.length - 1" @click="move(item, idx, 1)">
+                <button class="p-1 text-[--color-text-muted] hover:text-[--color-text] disabled:opacity-30" :disabled="idx === items.length - 1" @click="move(item, idx, 1)">
                   <Icon name="lucide:chevron-down" class="w-3.5 h-3.5" />
                 </button>
               </div>
               <!-- Toggle actif -->
               <button
                 class="p-1.5 rounded-lg transition-colors"
-                :class="item.active ? 'text-green-600 hover:bg-green-50' : 'text-gray-400 hover:bg-gray-100'"
+                :class="item.active ? 'text-green-600 hover:bg-green-50' : 'text-[--color-text-muted] hover:bg-[--color-background-soft]'"
                 :title="item.active ? 'Désactiver' : 'Activer'"
                 @click="toggleActive(item)"
               >
                 <Icon :name="item.active ? 'lucide:eye' : 'lucide:eye-off'" class="w-4 h-4" />
               </button>
-              <button class="p-1.5 text-gray-400 hover:text-gray-700" @click="startEdit(item)">
+              <button class="p-1.5 text-[--color-text-muted] hover:text-[--color-text]" @click="startEdit(item)">
                 <Icon name="lucide:pencil" class="w-4 h-4" />
               </button>
               <button class="p-1.5 text-red-400 hover:text-red-600" @click="deleteTarget = item">
@@ -100,7 +100,7 @@
           <p class="text-sm text-[--color-text-muted] mb-6 line-clamp-3">« {{ deleteTarget.question }} »</p>
           <div class="flex gap-3 justify-end">
             <button class="btn-ghost" @click="deleteTarget = null">Annuler</button>
-            <button class="btn-primary bg-red-500 hover:bg-red-600" :disabled="deleting" @click="confirmDelete">
+            <button class="btn-danger" :disabled="deleting" @click="confirmDelete">
               <Icon v-if="deleting" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
               Supprimer
             </button>

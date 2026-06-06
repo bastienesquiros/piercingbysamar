@@ -36,12 +36,11 @@ public class FaqController {
 
     @PostMapping("/api/admin/faq")
     public ResponseEntity<FaqItemResponse> create(@RequestBody FaqRequest body) {
-        long maxPos = faqRepository.findAllByOrderByPositionAsc().stream()
-                .mapToLong(f -> f.getPosition() == null ? 0 : f.getPosition()).max().orElse(-1);
+        int maxPos = faqRepository.findMaxPosition();
         FaqItem item = FaqItem.builder()
                 .question(body.question())
                 .answer(body.answer())
-                .position((int) maxPos + 1)
+                .position(maxPos + 1)
                 .active(body.active() != null ? body.active() : true)
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(faqRepository.save(item)));

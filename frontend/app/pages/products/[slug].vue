@@ -308,23 +308,23 @@ const { get } = useApi()
 const { format } = usePrice()
 const { public: { stripeEnabled } } = useRuntimeConfig()
 
-// ── Fetch product ──────────────────────────────────────────────
-const { data: product } = await useAsyncData(
-  `product-${route.params.slug}`,
-  () => get<ProductDetail>(`/api/products/${route.params.slug}`),
-  { default: () => null as unknown as ProductDetail }
-)
+// ── Fetch product + related en parallèle ──────────────────────
+const [{ data: product }, { data: relatedProducts }] = await Promise.all([
+  useAsyncData(
+    `product-${route.params.slug}`,
+    () => get<ProductDetail>(`/api/products/${route.params.slug}`),
+    { default: () => null as unknown as ProductDetail }
+  ),
+  useAsyncData(
+    `related-${route.params.slug}`,
+    () => get<ProductSummary[]>(`/api/products/${route.params.slug}/related?limit=4`),
+    { default: () => [] as ProductSummary[] }
+  ),
+])
 
 if (!product.value) {
   await showError({ statusCode: 404, statusMessage: 'Produit introuvable' })
 }
-
-// ── Related products ───────────────────────────────────────────
-const { data: relatedProducts } = await useAsyncData(
-  `related-${route.params.slug}`,
-  () => get<ProductSummary[]>(`/api/products/${route.params.slug}/related?limit=4`),
-  { default: () => [] as ProductSummary[] }
-)
 
 // ── Gallery ────────────────────────────────────────────────────
 const allImages = computed(() =>

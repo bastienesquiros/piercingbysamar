@@ -25,6 +25,7 @@ export const useCurrencyStore = defineStore('currency', {
   state: () => ({
     currency: 'MAD' as CurrencyCode,
     rates: { ...DEFAULT_RATES } as Record<CurrencyCode, number>,
+    ratesFetchedAt: 0,
   }),
 
   getters: {
@@ -38,12 +39,15 @@ export const useCurrencyStore = defineStore('currency', {
     set(code: CurrencyCode) { this.currency = code },
 
     async fetchRates() {
+      const TTL = 60 * 60 * 1000 // 1h
+      if (Date.now() - this.ratesFetchedAt < TTL) return
       try {
         const data = await $fetch<{ rates: Record<string, number> }>(
           `/api/exchange-rates`
         )
         if (data?.rates?.EUR) this.rates.EUR = data.rates.EUR
         if (data?.rates?.USD) this.rates.USD = data.rates.USD
+        this.ratesFetchedAt = Date.now()
       } catch {
         // Silencieux : on garde les taux par défaut
       }

@@ -10,17 +10,17 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div v-if="pending" class="p-10 text-center text-gray-400">
+    <div class="bg-white rounded-xl border border-[--color-border] overflow-hidden">
+      <div v-if="pending" class="p-10 text-center text-[--color-text-muted]">
         <Icon name="lucide:loader-2" class="w-6 h-6 animate-spin mx-auto mb-2" />
         Chargement…
       </div>
-      <div v-else-if="!categories.length" class="p-10 text-center text-gray-400">
+      <div v-else-if="!categories.length" class="p-10 text-center text-[--color-text-muted]">
         Aucune catégorie.
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide border-b border-gray-100">
+          <thead class="bg-[--color-background-soft] text-[--color-text-muted] text-xs uppercase tracking-wide border-b border-[--color-border]">
             <tr>
               <th class="text-left px-5 py-3">Image</th>
               <th class="text-left px-5 py-3">Nom</th>
@@ -31,22 +31,22 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="cat in categories" :key="cat.id" class="hover:bg-gray-50/50 transition-colors">
+            <tr v-for="cat in categories" :key="cat.id" class="hover:bg-[--color-background-soft]/50 transition-colors">
               <td class="px-5 py-3">
-                <div v-if="cat.imageUrl" class="w-10 h-10 rounded-lg overflow-hidden border border-gray-100">
+                <div v-if="cat.imageUrl" class="w-10 h-10 rounded-lg overflow-hidden border border-[--color-border]">
                   <img :src="cat.imageUrl" :alt="cat.name" class="w-full h-full object-cover" />
                 </div>
-                <div v-else class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                <div v-else class="w-10 h-10 rounded-lg bg-[--color-background-soft] flex items-center justify-center">
                   <Icon name="lucide:image" class="w-4 h-4 text-gray-300" />
                 </div>
               </td>
-              <td class="px-5 py-3 font-medium text-gray-800">{{ cat.name }}</td>
-              <td class="px-5 py-3 text-gray-500 font-mono text-xs">{{ cat.slug }}</td>
-              <td class="px-5 py-3 text-gray-500 text-xs">{{ parentName(cat.parentId) }}</td>
-              <td class="px-5 py-3 text-gray-400 text-xs max-w-xs truncate">{{ cat.description || '—' }}</td>
+              <td class="px-5 py-3 font-medium text-[--color-text]">{{ cat.name }}</td>
+              <td class="px-5 py-3 text-[--color-text-muted] font-mono text-xs">{{ cat.slug }}</td>
+              <td class="px-5 py-3 text-[--color-text-muted] text-xs">{{ parentName(cat.parentId) }}</td>
+              <td class="px-5 py-3 text-[--color-text-muted] text-xs max-w-xs truncate">{{ cat.description || '—' }}</td>
               <td class="px-5 py-3">
                 <div class="flex items-center gap-2 justify-end">
-                  <button class="text-gray-400 hover:text-gray-700" @click="openEdit(cat)">
+                  <button class="text-[--color-text-muted] hover:text-[--color-text]" @click="openEdit(cat)">
                     <Icon name="lucide:pencil" class="w-4 h-4" />
                   </button>
                   <button class="text-red-400 hover:text-red-600" @click="deleteCategory(cat)">
@@ -66,11 +66,11 @@
         <div class="flex-1 bg-black/30" @click="closePanel" />
         <div class="w-full max-w-md bg-white shadow-xl flex flex-col">
           <!-- Panel header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <h3 class="font-semibold text-gray-800">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-[--color-border]">
+            <h3 class="font-semibold text-[--color-text]">
               {{ editingId ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}
             </h3>
-            <button class="text-gray-400 hover:text-gray-700" @click="closePanel">
+            <button class="text-[--color-text-muted] hover:text-[--color-text]" @click="closePanel">
               <Icon name="lucide:x" class="w-5 h-5" />
             </button>
           </div>
@@ -89,7 +89,7 @@
             <div>
               <label class="label">Slug <span class="text-red-500">*</span></label>
               <input v-model="form.slug" type="text" class="input font-mono" placeholder="septum" />
-              <p class="text-xs text-gray-400 mt-1">URL : /catalogue?category={{ form.slug || 'slug' }}</p>
+              <p class="text-xs text-[--color-text-muted] mt-1">URL : /catalogue?category={{ form.slug || 'slug' }}</p>
             </div>
 
             <div>
@@ -111,13 +111,13 @@
             <div v-if="editingId">
               <div class="flex items-center gap-2 mb-3">
                 <label class="label mb-0">Image</label>
-                <span class="text-[10px] text-gray-400 bg-gray-100 rounded px-1.5 py-0.5">auto-sauvegardé</span>
+                <span class="text-[10px] text-[--color-text-muted] bg-[--color-background-soft] rounded px-1.5 py-0.5">auto-sauvegardé</span>
               </div>
 
               <!-- Zone image : preview ou placeholder -->
               <div class="flex items-start gap-4">
                 <div class="relative w-24 h-24 rounded-xl overflow-hidden border-2 shrink-0"
-                  :class="currentImageUrl ? 'border-gray-200 shadow-sm' : 'border-dashed border-gray-300 bg-gray-50'"
+                  :class="currentImageUrl ? 'border-[--color-border] shadow-sm' : 'border-dashed border-gray-300 bg-[--color-background-soft]'"
                 >
                   <img v-if="currentImageUrl" :src="currentImageUrl" alt="Image catégorie" class="w-full h-full object-cover" />
                   <div v-else class="w-full h-full flex items-center justify-center">
@@ -141,8 +141,8 @@
                     <span>{{ currentImageUrl ? 'Changer' : 'Ajouter une image' }}</span>
                     <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageSelected" />
                   </label>
-                  <p class="text-xs text-gray-400">Format carré · min. 400×400 px · max 5 Mo</p>
-                  <p v-if="imageUploading" class="text-xs text-gray-400 flex items-center gap-1">
+                  <p class="text-xs text-[--color-text-muted]">Format carré · min. 400×400 px · max 5 Mo</p>
+                  <p v-if="imageUploading" class="text-xs text-[--color-text-muted] flex items-center gap-1">
                     <Icon name="lucide:loader-2" class="w-3 h-3 animate-spin" />
                     Upload en cours…
                   </p>
@@ -152,7 +152,7 @@
           </div>
 
           <!-- Panel footer -->
-          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+          <div class="px-6 py-4 border-t border-[--color-border] flex justify-end gap-3">
             <button class="btn-ghost py-2 px-4 text-sm" @click="closePanel">Annuler</button>
             <button class="btn-primary py-2 px-4 text-sm" :disabled="saving || (!!editingId && !isDirty)" @click="save">
               <Icon v-if="saving" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
