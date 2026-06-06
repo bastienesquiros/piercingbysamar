@@ -1,11 +1,6 @@
 <template>
   <div class="space-y-5">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-gray-800">Commandes</h2>
-    </div>
-
     <!-- Filter -->
     <div class="flex gap-3 flex-wrap">
       <select v-model="filterStatus" class="input py-2 text-sm">
@@ -116,8 +111,11 @@
           <div class="px-6 py-5 space-y-6 flex-1">
 
             <!-- Status update -->
-            <div>
-              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Changer le statut</p>
+            <div :class="updatingStatus ? 'opacity-60 pointer-events-none' : ''">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-2">
+                Changer le statut
+                <Icon v-if="updatingStatus" name="lucide:loader-2" class="w-3 h-3 animate-spin text-gray-400" />
+              </p>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="s in availableStatuses(selectedOrder)"

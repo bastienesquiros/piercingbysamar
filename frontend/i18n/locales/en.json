@@ -3,7 +3,10 @@
     "catalogue": "Catalogue",
     "search": "Search...",
     "cart": "Cart",
-    "language": "FR"
+    "language": "FR",
+    "rdv": "Book an appointment",
+    "home": "Home",
+    "rdv_short": "Book"
   },
   "home": {
     "hero_title": "Jewelry & Piercings",
@@ -130,7 +133,10 @@
     "status_delivered": "Delivered",
     "status_cancelled": "Cancelled",
     "status_ready": "Ready for pickup",
-    "status_collected": "Collected"
+    "status_collected": "Collected",
+    "rdv_upsell_title": "Your jewelry is waiting — and so is Samar.",
+    "rdv_upsell_subtitle": "Book your appointment now to get your piercing done in the best conditions.",
+    "whatsapp_question": "A question?"
   },
   "catalogue": {
     "filters": "Filters",
@@ -147,7 +153,8 @@
     "products_count": "{n} product | {n} products",
     "sort_newest": "Newest",
     "sort_price_asc": "Price: low to high",
-    "sort_price_desc": "Price: high to low"
+    "sort_price_desc": "Price: high to low",
+    "all_description": "Our full collection of jewelry and piercings."
   },
   "breadcrumb": {
     "home": "Home"
@@ -166,5 +173,31 @@
     "rights": "All rights reserved.",
     "placements": "{n} placements",
     "discover": "Explore"
+  },
+  "rdv": {
+    "title": "Book an appointment",
+    "subtitle": "Fill in this form and you'll be redirected to WhatsApp to confirm your slot with Samar.",
+    "field_name": "Your first name",
+    "placeholder_name": "E.g. Yasmine",
+    "field_type": "Desired piercing type",
+    "placeholder_type": "Select...",
+    "other": "Other",
+    "field_date": "Preferred date",
+    "field_slot": "Preferred time slot",
+    "slot_morning": "Morning",
+    "slot_afternoon": "Afternoon",
+    "slot_any": "Flexible",
+    "field_notes": "Notes",
+    "optional": "optional",
+    "placeholder_notes": "E.g. first time, questions about aftercare...",
+    "submit": "Send via WhatsApp",
+    "disclaimer": "You will be redirected to WhatsApp to finalize your appointment request."
+  },
+  "rdv_banner": {
+    "eyebrow": "Ready for the next step?",
+    "title": "Want to get pierced?",
+    "subtitle": "You found your jewelry — now let's make it happen. Book an appointment with Samar in seconds. It's free.",
+    "cta": "Book an appointment",
+    "free": "Free · Confirmed via WhatsApp"
   }
 }

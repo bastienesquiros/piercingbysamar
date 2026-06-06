@@ -89,15 +89,43 @@
         </div>
 
         <!-- CTA -->
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mt-2 mb-4">
           <NuxtLink :to="localePath('/catalogue')" class="btn-outline">
             <Icon name="lucide:shopping-bag" class="w-4 h-4" />
             {{ $t('order.continue_shopping') }}
           </NuxtLink>
-          <NuxtLink :to="localePath('/')" class="btn-ghost">
+          <NuxtLink :to="localePath('/')" class="btn-outline">
             <Icon name="lucide:home" class="w-4 h-4" />
             {{ $t('order.home') }}
           </NuxtLink>
+        </div>
+
+        <!-- WhatsApp aide -->
+        <div class="border-t border-[--color-border] pt-6 mb-6">
+          <a :href="whatsappUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors">
+            <Icon name="simple-icons:whatsapp" class="w-4 h-4 text-green-500" />
+            {{ $t('order.whatsapp_question') }}
+          </a>
+        </div>
+
+        <!-- Flow 2 : RDV post-achat -->
+        <div class="bg-[--color-primary-light] rounded-2xl border border-[--color-border] p-6 text-left">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-[--color-primary]/20 flex items-center justify-center shrink-0 mt-0.5">
+              <Icon name="lucide:sparkles" class="w-5 h-5 text-[--color-primary-dark]" />
+            </div>
+            <div class="flex-1">
+              <p class="font-semibold text-[--color-text] mb-1">{{ $t('order.rdv_upsell_title') }}</p>
+              <p class="text-sm text-[--color-text-muted] mb-4">{{ $t('order.rdv_upsell_subtitle') }}</p>
+              <NuxtLink
+                :to="localePath('/rdv')"
+                class="btn-primary py-2.5 px-5 text-sm inline-flex items-center gap-2"
+              >
+                <Icon name="simple-icons:whatsapp" class="w-4 h-4" />
+                {{ $t('nav.rdv') }}
+              </NuxtLink>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -141,6 +169,13 @@ const statusLabel = computed(() => {
     COLLECTED: t('order.status_collected'),
   }
   return labels[order.value?.status ?? ''] ?? order.value?.status ?? ''
+})
+
+const whatsappUrl = computed(() => {
+  const msg = encodeURIComponent(
+    `Bonjour, j'ai une question sur ma commande ${reference}.`
+  )
+  return `https://wa.me/212781570083?text=${msg}`
 })
 
 useSeoMeta({ title: $t('order.confirmed') + ' — Piercing by Samar', robots: 'noindex' })

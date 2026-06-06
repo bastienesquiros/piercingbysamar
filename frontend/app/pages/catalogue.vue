@@ -7,8 +7,8 @@
         <h1 class="font-serif text-4xl font-semibold text-[--color-text] mb-1">
           {{ activeCategory ? $t('categories.' + activeCategory.slug, activeCategory.name) : $t('nav.catalogue') }}
         </h1>
-        <p v-if="activeCategory?.description" class="text-[--color-text-muted]">
-          {{ activeCategory.description }}
+        <p class="text-[--color-text-muted]">
+          {{ activeCategory?.description || $t('catalogue.all_description') }}
         </p>
         <p class="text-sm text-[--color-text-muted] mt-1">
           {{ $t('catalogue.products_count', data?.totalElements ?? 0, { n: data?.totalElements ?? 0 }) }}
@@ -70,7 +70,7 @@
         </aside>
 
         <!-- Main content -->
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 min-h-[600px]">
 
           <!-- Search result banner -->
           <div v-if="filters.search" class="mb-4 flex items-center gap-2 flex-wrap">

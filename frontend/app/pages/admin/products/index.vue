@@ -2,8 +2,7 @@
   <div class="space-y-5">
 
     <!-- Header -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-gray-800">Produits</h2>
+    <div class="flex items-center justify-end">
       <button class="btn-primary py-2 px-4 text-sm" @click="openCreate">
         <Icon name="lucide:plus" class="w-4 h-4" />
         Nouveau produit
@@ -98,7 +97,7 @@
                 </span>
               </td>
               <td class="px-5 py-3">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 justify-end">
                   <button class="text-xs text-blue-600 hover:underline" @click="openEdit(product.id)">Modifier</button>
                   <button
                     class="text-xs hover:underline"
@@ -179,9 +178,9 @@
                   <textarea v-model="form.description" class="input resize-none" rows="3" placeholder="Description du produit…" />
                 </div>
                 <div class="col-span-2">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input v-model="form.nickelFree" type="checkbox" class="rounded" />
-                    <span class="text-sm text-gray-700">Nickel Free</span>
+                  <label class="flex items-center gap-2.5 cursor-pointer w-fit">
+                    <input v-model="form.nickelFree" type="checkbox" class="w-4 h-4 rounded accent-[--color-primary] cursor-pointer" />
+                    <span class="text-sm text-gray-700">Nickel Free <span class="text-xs text-gray-400">(badge affiché sur la fiche produit)</span></span>
                   </label>
                 </div>
               </div>
@@ -204,6 +203,7 @@
             <section v-if="editingProduct" class="space-y-3">
               <div class="flex items-center gap-2">
                 <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tags</h4>
+                <span class="text-[10px] text-gray-400 bg-gray-100 rounded px-1.5 py-0.5">auto-sauvegardé</span>
                 <Transition name="fade">
                   <span v-if="tagSaved" class="text-xs text-green-600 flex items-center gap-1">
                     <Icon name="lucide:check" class="w-3 h-3" /> sauvegardé
@@ -332,8 +332,9 @@
                         <label class="label text-xs">Stock</label>
                         <input v-model.number="editVariantForm.stock" type="number" min="0" class="input py-1.5 text-sm" />
                       </div>
-                      <div class="flex items-end pb-1">
-                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <div>
+                        <label class="label text-xs opacity-0 select-none">.</label>
+                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer py-1.5">
                           <input v-model="editVariantForm.active" type="checkbox" class="w-4 h-4 accent-[--color-primary]" />
                           Active
                         </label>
@@ -354,7 +355,10 @@
 
             <!-- ── Images (edit only) ── -->
             <section v-if="editingProduct" class="space-y-4">
-              <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Images</h4>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Images</h4>
+                <span class="text-[10px] text-gray-400 bg-gray-100 rounded px-1.5 py-0.5">auto-sauvegardé</span>
+              </div>
 
               <!-- Existing images -->
               <div v-if="editingProduct.images.length" class="space-y-3">
@@ -424,7 +428,7 @@
           <!-- Panel footer -->
           <div class="px-6 py-4 border-t border-gray-100 bg-white sticky bottom-0 flex gap-3 justify-end">
             <button class="btn-ghost" @click="closePanel">Annuler</button>
-            <button class="btn-primary" :disabled="savingProduct" @click="saveProduct">
+            <button class="btn-primary" :disabled="savingProduct || (!!editingId && !isDirty)" @click="saveProduct">
               <Icon v-if="savingProduct" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
               {{ editingId ? 'Enregistrer' : 'Créer le produit' }}
             </button>

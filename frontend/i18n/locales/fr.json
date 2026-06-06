@@ -3,7 +3,10 @@
     "catalogue": "Catalogue",
     "search": "Rechercher...",
     "cart": "Panier",
-    "language": "EN"
+    "language": "EN",
+    "rdv": "Prendre RDV",
+    "home": "Accueil",
+    "rdv_short": "RDV"
   },
   "home": {
     "hero_title": "Bijoux & Piercings",
@@ -41,7 +44,7 @@
     "whatsapp_stock": "Nous contacter sur WhatsApp",
     "low_stock": "Plus que {n} en stock !",
     "from": "À partir de",
-    "whatsapp_contact": "Me contacter sur WhatsApp",
+    "whatsapp_contact": "Nous contacter sur WhatsApp",
     "added_to_cart": "✓ Ajouté au panier !",
     "quantity": "Quantité",
     "description": "Description",
@@ -130,7 +133,10 @@
     "status_delivered": "Livrée",
     "status_cancelled": "Annulée",
     "status_ready": "Prête à retirer",
-    "status_collected": "Retirée"
+    "status_collected": "Retirée",
+    "rdv_upsell_title": "Votre bijou vous attend, et Samar aussi.",
+    "rdv_upsell_subtitle": "Prenez rendez-vous dès maintenant pour vous faire poser votre piercing dans les meilleures conditions.",
+    "whatsapp_question": "Une question ?"
   },
   "catalogue": {
     "filters": "Filtres",
@@ -147,7 +153,8 @@
     "products_count": "{n} produit | {n} produits",
     "sort_newest": "Plus récents",
     "sort_price_asc": "Prix croissant",
-    "sort_price_desc": "Prix décroissant"
+    "sort_price_desc": "Prix décroissant",
+    "all_description": "Toute notre collection de bijoux et piercings."
   },
   "breadcrumb": {
     "home": "Accueil"
@@ -166,5 +173,31 @@
     "rights": "Tous droits réservés.",
     "placements": "{n} placements",
     "discover": "Découvrir"
+  },
+  "rdv": {
+    "title": "Prendre rendez-vous",
+    "subtitle": "Remplissez ce formulaire et vous serez redirigé vers WhatsApp pour confirmer votre créneau avec Samar.",
+    "field_name": "Votre prénom",
+    "placeholder_name": "Ex : Yasmine",
+    "field_type": "Type de piercing souhaité",
+    "placeholder_type": "Sélectionner...",
+    "other": "Autre",
+    "field_date": "Date souhaitée",
+    "field_slot": "Créneau préféré",
+    "slot_morning": "Matin",
+    "slot_afternoon": "Après-midi",
+    "slot_any": "Indifférent",
+    "field_notes": "Notes",
+    "optional": "facultatif",
+    "placeholder_notes": "Ex : première fois, questions sur les soins post-piercing...",
+    "submit": "Envoyer via WhatsApp",
+    "disclaimer": "Vous serez redirigé vers WhatsApp pour finaliser votre demande de RDV."
+  },
+  "rdv_banner": {
+    "eyebrow": "Passez à l'étape suivante",
+    "title": "Envie de vous faire percer ?",
+    "subtitle": "Bijoux trouvés, maintenant place à la pose. Prenez rendez-vous avec Samar en quelques secondes — c'est gratuit.",
+    "cta": "Prendre rendez-vous",
+    "free": "Gratuit · Confirmation par WhatsApp"
   }
 }

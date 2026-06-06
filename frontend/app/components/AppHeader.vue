@@ -103,6 +103,15 @@
             <span>{{ locale === 'fr' ? 'FR' : 'EN' }}</span>
           </button>
 
+          <!-- RDV link discret -->
+          <NuxtLink
+            :to="localePath('/rdv')"
+            class="hidden md:inline-flex items-center gap-1.5 text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors px-2"
+          >
+            <Icon name="simple-icons:whatsapp" class="w-3.5 h-3.5 text-green-500" />
+            {{ $t('nav.rdv') }}
+          </NuxtLink>
+
           <!-- Cart -->
           <button
             class="btn-ghost relative px-3 py-2"

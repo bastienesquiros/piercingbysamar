@@ -10,9 +10,11 @@
         <p class="text-[--color-text-muted] text-base md:text-lg mb-8 max-w-md mx-auto">
           {{ $t('home.hero_subtitle') }}
         </p>
-        <NuxtLink :to="localePath('/catalogue')" class="btn-primary text-base px-8 py-3">
-          {{ $t('home.view_all') }}
-        </NuxtLink>
+        <div class="flex flex-wrap justify-center gap-3">
+          <NuxtLink :to="localePath('/catalogue')" class="btn-primary text-base px-8 py-3">
+            {{ $t('home.view_all') }}
+          </NuxtLink>
+        </div>
       </div>
     </section>
 
@@ -35,6 +37,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Featured products -->
+    <section class="py-16 bg-[--color-background-soft]">
+      <div class="container-site">
+        <div class="flex items-baseline justify-between mb-8">
+          <h2 class="section-title">{{ $t('home.new_arrivals') }}</h2>
+        </div>
+
+        <!-- Loading skeleton -->
+        <div v-if="pending" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div v-for="n in 8" :key="n" class="aspect-square rounded-xl bg-[--color-background-warm] animate-pulse" />
+        </div>
+
+        <!-- Product grid -->
+        <div v-else-if="products?.content?.length" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <ProductCard
+            v-for="product in products.content"
+            :key="product.id"
+            :product="product"
+          />
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-10 text-center">
+          <NuxtLink
+            :to="localePath('/catalogue')"
+            class="btn-outline text-base px-10 py-3 inline-flex items-center gap-2"
+          >
+            {{ $t('home.view_catalogue') }}
+            <Icon name="lucide:arrow-right" class="w-4 h-4" />
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
 
     <!-- Shop by body area -->
     <section class="py-16">
@@ -82,39 +118,14 @@
       </div>
     </section>
 
-    <!-- Featured products -->
-    <section class="py-16 bg-[--color-background-soft]">
-      <div class="container-site">
-        <div class="flex items-baseline justify-between mb-8">
-          <h2 class="section-title">{{ $t('home.new_arrivals') }}</h2>
-        </div>
+    <!-- Ear visualizer -->
+    <EarVisualizer />
 
-        <!-- Loading skeleton -->
-        <div v-if="pending" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div v-for="n in 8" :key="n" class="aspect-square rounded-xl bg-[--color-background-warm] animate-pulse" />
-        </div>
+    <!-- Flow 1 : CTA RDV discovery -->
+    <RdvBanner />
 
-        <!-- Product grid -->
-        <div v-else-if="products?.content?.length" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <ProductCard
-            v-for="product in products.content"
-            :key="product.id"
-            :product="product"
-          />
-        </div>
-
-        <!-- CTA -->
-        <div class="mt-10 text-center">
-          <NuxtLink
-            :to="localePath('/catalogue')"
-            class="btn-outline text-base px-10 py-3 inline-flex items-center gap-2"
-          >
-            {{ $t('home.view_catalogue') }}
-            <Icon name="lucide:arrow-right" class="w-4 h-4" />
-          </NuxtLink>
-        </div>
-      </div>
-    </section>
+    <!-- Avis clients -->
+    <ReviewsSection />
   </div>
 </template>
 

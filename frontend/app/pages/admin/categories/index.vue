@@ -2,8 +2,7 @@
   <div class="space-y-5">
 
     <!-- Header -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-gray-800">Catégories</h2>
+    <div class="flex items-center justify-end">
       <button class="btn-primary py-2 px-4 text-sm" @click="openCreate">
         <Icon name="lucide:plus" class="w-4 h-4" />
         Nouvelle catégorie
@@ -110,32 +109,45 @@
 
             <!-- Image (uniquement en édition) -->
             <div v-if="editingId">
-              <label class="label">Image</label>
-
-              <div v-if="currentImageUrl" class="mb-3 relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                <img :src="currentImageUrl" alt="Image catégorie" class="w-full h-full object-cover" />
-                <button
-                  class="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/40 transition-colors group"
-                  :disabled="imageUploading"
-                  title="Supprimer l'image"
-                  @click="removeImage"
-                >
-                  <Icon name="lucide:trash-2" class="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" />
-                </button>
+              <div class="flex items-center gap-2 mb-3">
+                <label class="label mb-0">Image</label>
+                <span class="text-[10px] text-gray-400 bg-gray-100 rounded px-1.5 py-0.5">auto-sauvegardé</span>
               </div>
 
-              <label class="btn-outline py-2 px-3 text-sm cursor-pointer inline-flex items-center gap-2">
-                <Icon name="lucide:upload" class="w-4 h-4" />
-                <span>{{ currentImageUrl ? 'Changer l\'image' : 'Ajouter une image' }}</span>
-                <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageSelected" />
-              </label>
+              <!-- Zone image : preview ou placeholder -->
+              <div class="flex items-start gap-4">
+                <div class="relative w-24 h-24 rounded-xl overflow-hidden border-2 shrink-0"
+                  :class="currentImageUrl ? 'border-gray-200 shadow-sm' : 'border-dashed border-gray-300 bg-gray-50'"
+                >
+                  <img v-if="currentImageUrl" :src="currentImageUrl" alt="Image catégorie" class="w-full h-full object-cover" />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <Icon name="lucide:image" class="w-8 h-8 text-gray-300" />
+                  </div>
+                  <!-- Supprimer -->
+                  <button
+                    v-if="currentImageUrl"
+                    class="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/40 transition-colors group"
+                    :disabled="imageUploading"
+                    title="Supprimer l'image"
+                    @click="removeImage"
+                  >
+                    <Icon name="lucide:trash-2" class="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" />
+                  </button>
+                </div>
 
-              <p class="text-xs text-gray-400 mt-1.5">Format carré · min. 400×400 px · max 5 Mo</p>
-
-              <p v-if="imageUploading" class="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                <Icon name="lucide:loader-2" class="w-3 h-3 animate-spin" />
-                Upload en cours…
-              </p>
+                <div class="space-y-2 pt-1">
+                  <label class="btn-outline py-2 px-3 text-sm cursor-pointer inline-flex items-center gap-2">
+                    <Icon name="lucide:upload" class="w-4 h-4" />
+                    <span>{{ currentImageUrl ? 'Changer' : 'Ajouter une image' }}</span>
+                    <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageSelected" />
+                  </label>
+                  <p class="text-xs text-gray-400">Format carré · min. 400×400 px · max 5 Mo</p>
+                  <p v-if="imageUploading" class="text-xs text-gray-400 flex items-center gap-1">
+                    <Icon name="lucide:loader-2" class="w-3 h-3 animate-spin" />
+                    Upload en cours…
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
