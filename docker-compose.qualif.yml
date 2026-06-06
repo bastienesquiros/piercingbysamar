@@ -33,6 +33,11 @@ services:
       - traefik.http.routers.pbs-qualif.tls.certresolver=main
       - traefik.http.routers.pbs-qualif.middlewares=basicauth@file
       - traefik.http.services.pbs-qualif.loadbalancer.server.port=3000
+      # Router /api/ sans basicauth (backend gere son propre auth JWT)
+      - traefik.http.routers.pbs-qualif-api.rule=Host(`qualif.piercingbysamar.com`) && PathPrefix(`/api/`)
+      - traefik.http.routers.pbs-qualif-api.entrypoints=websecure
+      - traefik.http.routers.pbs-qualif-api.tls.certresolver=main
+      - traefik.http.routers.pbs-qualif-api.service=pbs-qualif
       # HTTP → HTTPS redirect
       - traefik.http.routers.pbs-qualif-http.rule=Host(`qualif.piercingbysamar.com`)
       - traefik.http.routers.pbs-qualif-http.entrypoints=web
