@@ -59,7 +59,8 @@
     <!-- Graphique CA par jour -->
     <div class="bg-white rounded-2xl border border-[--color-border] p-6">
       <h3 class="text-sm font-semibold text-[--color-text] mb-6">Chiffre d'affaires par jour</h3>
-      <div v-if="revenueData.length" class="relative">
+      <div v-if="revenueData.length" class="overflow-x-auto -mx-2 px-2">
+        <div class="min-w-[560px]">
         <!-- Chart SVG -->
         <svg :viewBox="`0 0 ${chartW} ${chartH}`" class="w-full" style="overflow: visible">
           <!-- Grid lines -->
@@ -71,7 +72,7 @@
           <text v-for="i in 5" :key="'y' + i"
             :x="paddingL - 8"
             :y="paddingT + ((chartH - paddingT - paddingB) / 4) * (i - 1) + 4"
-            text-anchor="end" font-size="10" fill="#9ca3af">
+            text-anchor="end" font-size="13" fill="#9ca3af">
             {{ formatPrice(maxRevenue - ((maxRevenue / 4) * (i - 1))) }}
           </text>
           <!-- Bars -->
@@ -91,11 +92,12 @@
             <text v-if="shouldShowLabel(i)"
               :x="paddingL + i * barStep + barStep / 2"
               :y="chartH - paddingB + 14"
-              text-anchor="middle" font-size="9" fill="#9ca3af">
+              text-anchor="middle" font-size="11" fill="#9ca3af">
               {{ formatDate(d.date) }}
             </text>
           </g>
         </svg>
+        </div>
       </div>
       <div v-else class="flex items-center justify-center h-32 text-[--color-text-muted] text-sm">
         Aucune donnée pour cette période.
@@ -205,11 +207,11 @@ async function loadAll() {
 
 // ── Chart dimensions ─────────────────────────────────────────────
 const chartW = 800
-const chartH = 220
-const paddingL = 70
+const chartH = 250
+const paddingL = 80
 const paddingR = 20
 const paddingT = 10
-const paddingB = 30
+const paddingB = 32
 
 const barAreaW = computed(() => chartW - paddingL - paddingR)
 const barAreaH = computed(() => chartH - paddingT - paddingB)

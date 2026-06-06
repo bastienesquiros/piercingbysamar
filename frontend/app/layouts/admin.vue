@@ -65,18 +65,18 @@
   </div>
 
   <!-- Mobile bottom nav -->
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 bg-[#1C1410] border-t border-white/10 z-40 flex">
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 bg-[#1C1410] border-t border-white/10 z-40 flex safe-area-bottom">
     <NuxtLink
       v-for="item in navItems"
       :key="item.to"
       :to="item.to"
-      class="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors"
+      class="flex-1 flex flex-col items-center gap-0.5 py-2 px-1 text-[9px] font-medium transition-colors leading-none"
       :class="isActive(item.to)
         ? 'text-[--color-primary]'
         : 'text-white/50 hover:text-white'"
     >
-      <Icon :name="item.icon" class="w-5 h-5" />
-      {{ item.label }}
+      <Icon :name="item.icon" class="w-[18px] h-[18px] mb-0.5" />
+      <span class="truncate w-full text-center">{{ item.label }}</span>
     </NuxtLink>
   </nav>
 
@@ -117,3 +117,9 @@ function logout() {
   router.push('/admin/login')
 }
 </script>
+
+<style scoped>
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+</style>

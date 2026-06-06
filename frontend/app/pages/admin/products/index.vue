@@ -511,6 +511,7 @@ let tagSavedTimer: ReturnType<typeof setTimeout> | null = null
 
 // ── Panel state ────────────────────────────────────────────────
 const panelOpen = ref(false)
+useScrollLock(panelOpen)
 const editingId = ref<number | null>(null)
 const editingProduct = ref<ProductDetail | null>(null)
 const panelError = ref<string | null>(null)

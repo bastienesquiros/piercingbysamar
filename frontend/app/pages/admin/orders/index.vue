@@ -225,6 +225,7 @@ watch(filterStatus, () => { page.value = 0 })
 
 // ── Detail panel ───────────────────────────────────────────────
 const selectedOrder = ref<Order | null>(null)
+useScrollLock(() => !!selectedOrder.value)
 const updatingStatus = ref(false)
 const statusTarget = ref<string | null>(null)
 

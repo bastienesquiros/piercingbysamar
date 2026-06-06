@@ -192,6 +192,7 @@ function parentName(parentId: number | null) {
 
 // ── Panel ──────────────────────────────────────────────────────
 const panelOpen = ref(false)
+useScrollLock(panelOpen)
 const editingId = ref<number | null>(null)
 const panelError = ref<string | null>(null)
 const saving = ref(false)
