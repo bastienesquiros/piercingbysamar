@@ -4,5 +4,6 @@ public record ProductImageResponse(
         Long id,
         String r2Url,
         Integer position,
-        String altText
+        String altText,
+        Long variantId
 ) {}

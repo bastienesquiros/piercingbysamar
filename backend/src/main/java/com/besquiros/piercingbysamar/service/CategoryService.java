@@ -11,6 +11,7 @@ import com.besquiros.piercingbysamar.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final ProductRepository productRepository;
+    private final StorageService storageService;
 
     public List<CategoryResponse> getRootCategoriesWithChildren() {
         return categoryMapper.toResponseList(categoryRepository.findRootCategoriesWithChildren());
@@ -85,5 +87,28 @@ public class CategoryService {
         if (parentId == null) return null;
         return categoryRepository.findById(parentId)
                 .orElseThrow(() -> new NotFoundException("Catégorie parente introuvable : " + parentId));
+    }
+
+    @Transactional
+    public CategoryResponse uploadImage(Long id, MultipartFile file) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Catégorie introuvable : " + id));
+        if (category.getImageUrl() != null) {
+            storageService.delete(category.getImageUrl());
+        }
+        String url = storageService.upload(file, "categories");
+        category.setImageUrl(url);
+        return categoryMapper.toResponse(categoryRepository.save(category));
+    }
+
+    @Transactional
+    public void deleteImage(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Catégorie introuvable : " + id));
+        if (category.getImageUrl() != null) {
+            storageService.delete(category.getImageUrl());
+            category.setImageUrl(null);
+            categoryRepository.save(category);
+        }
     }
 }

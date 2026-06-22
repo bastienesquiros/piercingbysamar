@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Commande annulée</h2>
+        <p>Bonjour <span th:text="${customerName}">Prénom</span>,</p>
+        <p>Votre commande <strong th:text="${orderReference}">REF</strong> a été annulée.</p>
+        <p style="color:#666">
+            Si vous pensez qu'il s'agit d'une erreur ou si vous avez des questions, contactez-nous directement sur WhatsApp — c'est le moyen le plus rapide pour nous joindre.
+        </p>
+
+        <div style="text-align:center;margin:24px 0">
+            <a th:href="${waUrl}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px">
+                💬 Nous contacter sur WhatsApp
+            </a>
+            <p style="margin:12px 0 0;color:#999;font-size:13px">+212 7 81 57 00 83</p>
+        </div>
+
+        <div th:replace="~{mail/_items-table :: items-table}"></div>
+
+    </section>
+</div>
+
+</body>
+</html>

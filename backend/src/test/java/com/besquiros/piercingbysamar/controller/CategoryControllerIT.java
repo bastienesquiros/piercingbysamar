@@ -36,7 +36,7 @@ class CategoryControllerIT {
 
     @Test
     void getAll_shouldReturn200WithCategoryList() throws Exception {
-        CategoryResponse cat = new CategoryResponse(1L, null, "Oreille", "oreille", null, List.of());
+        CategoryResponse cat = new CategoryResponse(1L, null, "Oreille", "oreille", null, null, List.of());
         when(categoryService.getRootCategoriesWithChildren()).thenReturn(List.of(cat));
 
         mockMvc.perform(get("/api/categories"))
@@ -47,7 +47,7 @@ class CategoryControllerIT {
 
     @Test
     void getBySlug_whenFound_shouldReturn200() throws Exception {
-        CategoryResponse cat = new CategoryResponse(7L, 1L, "Hélix", "helix", null, List.of());
+        CategoryResponse cat = new CategoryResponse(7L, 1L, "Hélix", "helix", null, null, List.of());
         when(categoryService.getBySlug("helix")).thenReturn(cat);
 
         mockMvc.perform(get("/api/categories/helix"))

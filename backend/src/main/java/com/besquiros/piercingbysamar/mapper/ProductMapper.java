@@ -19,6 +19,8 @@ public class ProductMapper {
                 variant.getColor(),
                 variant.getPriceCents(),
                 variant.getStock(),
+                variant.getReservedStock(),
+                variant.getAvailableStock(),
                 variant.isInStock(),
                 variant.isActive()
         );
@@ -29,7 +31,8 @@ public class ProductMapper {
                 image.getId(),
                 image.getR2Url(),
                 image.getPosition(),
-                image.getAltText()
+                image.getAltText(),
+                image.getVariant() != null ? image.getVariant().getId() : null
         );
     }
 

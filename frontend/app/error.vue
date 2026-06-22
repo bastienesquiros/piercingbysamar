@@ -7,7 +7,7 @@
       {{ title }}
     </h1>
     <p class="text-[--color-text-muted] max-w-sm mb-8">{{ message }}</p>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 mb-10">
       <button class="btn-outline" @click="handleError">
         <Icon name="lucide:arrow-left" class="w-4 h-4" />
         Retour
@@ -17,7 +17,12 @@
         Accueil
       </NuxtLink>
     </div>
-    <p class="mt-10 text-xs text-[--color-border]">Piercing by Samar</p>
+
+    <!-- Aide WhatsApp -->
+    <a :href="whatsappUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors">
+      <Icon name="simple-icons:whatsapp" class="w-4 h-4 text-green-500" />
+      Besoin d'aide ? Contactez-nous sur WhatsApp
+    </a>
   </div>
 </template>
 
@@ -36,6 +41,13 @@ const message = computed(() => {
   if (props.error.statusCode === 404) return 'La page que vous cherchez n\'existe pas ou a été déplacée.'
   if (props.error.statusCode === 403) return 'Vous n\'avez pas accès à cette page.'
   return 'Quelque chose s\'est mal passé. Veuillez réessayer.'
+})
+
+const whatsappUrl = computed(() => {
+  const text = props.error.statusCode === 404
+    ? `Bonjour, je cherchais une page sur votre site mais elle est introuvable. Pouvez-vous m'aider ?`
+    : `Bonjour, j'ai rencontré une erreur sur votre site (code ${props.error.statusCode}). Pouvez-vous m'aider ?`
+  return `https://wa.me/212781570083?text=${encodeURIComponent(text)}`
 })
 
 function handleError() {

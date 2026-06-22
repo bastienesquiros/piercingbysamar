@@ -26,6 +26,9 @@ public class StorageService {
     @Value("${storage.endpoint}")
     private String endpoint;
 
+    @Value("${storage.public-url}")
+    private String publicUrl;
+
     /**
      * Upload un fichier image vers le bucket Contabo S3.
      * Retourne l'URL publique de l'image.
@@ -46,7 +49,7 @@ public class StorageService {
 
             s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
 
-            String url = endpoint + "/" + bucket + "/" + key;
+            String url = publicUrl + "/" + key;
             log.info("Image uploadée : {}", url);
             return url;
 
@@ -60,8 +63,8 @@ public class StorageService {
      * Supprime un fichier du bucket à partir de son URL publique.
      */
     public void delete(String url) {
-        // Extraire la clé depuis l'URL : endpoint/bucket/key
-        String prefix = endpoint + "/" + bucket + "/";
+        // Extraire la clé depuis l'URL publique : publicUrl/key
+        String prefix = publicUrl + "/";
         if (!url.startsWith(prefix)) {
             log.warn("URL inconnue, suppression ignorée : {}", url);
             return;

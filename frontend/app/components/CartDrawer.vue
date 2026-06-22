@@ -130,6 +130,8 @@
 const cart = useCartStore()
 const localePath = useLocalePath()
 const { format } = usePrice()
+
+useScrollLock(() => cart.open)
 </script>
 
 <style scoped>

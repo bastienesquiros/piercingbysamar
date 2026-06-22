@@ -80,7 +80,7 @@
           </p>
           <div class="flex gap-3 justify-end">
             <button class="btn-ghost" @click="deleteTarget = null">Annuler</button>
-            <button class="btn-primary bg-red-500 hover:bg-red-600" :disabled="deleting" @click="confirmDelete">
+            <button class="btn-danger" :disabled="deleting" @click="confirmDelete">
               <Icon v-if="deleting" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
               Supprimer
             </button>

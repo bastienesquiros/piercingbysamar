@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+
+<div th:replace="~{mail/_layout :: layout(~{::section})}">
+    <section th:fragment="section">
+
+        <h2 style="color:#2C1810;margin-top:0">Votre avis nous aide beaucoup ⭐</h2>
+        <p>Bonjour <span th:text="${customerName}">Prénom</span>,</p>
+        <p>
+            Nous espérons que vous êtes satisfait(e) de votre commande <strong th:text="${orderReference}">REF</strong> chez Piercing by Samar.
+        </p>
+        <p style="color:#666">
+            Si vous avez un moment, laisser un avis Google nous aide énormément à faire connaître la boutique.
+        </p>
+
+        <div style="text-align:center;margin:28px 0">
+            <a th:href="${googleReviewUrl}" style="display:inline-block;background:#C4A882;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px">
+                ⭐ Laisser un avis Google
+            </a>
+        </div>
+
+        <p style="text-align:center;margin:0">
+            <a href="https://www.instagram.com/piercing_bysamar" style="color:#C4A882;font-size:13px">
+                Nous suivre sur Instagram
+            </a>
+        </p>
+
+        <p style="margin-top:24px;color:#999;font-size:12px;text-align:center">
+            Si vous avez la moindre question, on est là sur
+            <a th:href="'https://wa.me/' + ${whatsappNumber}" style="color:#25D366">WhatsApp</a>.
+        </p>
+
+    </section>
+</div>
+
+</body>
+</html>

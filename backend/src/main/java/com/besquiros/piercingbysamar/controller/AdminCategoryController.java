@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,6 +38,19 @@ public class AdminCategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/{id}/image", consumes = "multipart/form-data")
+    public ResponseEntity<CategoryResponse> uploadImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(categoryService.uploadImage(id, file));
+    }
+
+    @DeleteMapping("/{id}/image")
+    public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
+        categoryService.deleteImage(id);
         return ResponseEntity.noContent().build();
     }
 }

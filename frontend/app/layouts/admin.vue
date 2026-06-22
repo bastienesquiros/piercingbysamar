@@ -65,18 +65,18 @@
   </div>
 
   <!-- Mobile bottom nav -->
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 bg-[#1C1410] border-t border-white/10 z-40 flex">
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 bg-[#1C1410] border-t border-white/10 z-40 flex safe-area-bottom">
     <NuxtLink
       v-for="item in navItems"
       :key="item.to"
       :to="item.to"
-      class="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors"
+      class="flex-1 flex flex-col items-center gap-0.5 py-2 px-1 text-[9px] font-medium transition-colors leading-none"
       :class="isActive(item.to)
         ? 'text-[--color-primary]'
         : 'text-white/50 hover:text-white'"
     >
-      <Icon :name="item.icon" class="w-5 h-5" />
-      {{ item.label }}
+      <Icon :name="item.icon" class="w-[18px] h-[18px] mb-0.5" />
+      <span class="truncate w-full text-center">{{ item.label }}</span>
     </NuxtLink>
   </nav>
 
@@ -94,6 +94,8 @@ const navItems = [
   { to: '/admin/categories', label: 'Catégories', icon: 'lucide:tag' },
   { to: '/admin/tags', label: 'Tags', icon: 'lucide:hash' },
   { to: '/admin/orders', label: 'Commandes', icon: 'lucide:shopping-cart' },
+  { to: '/admin/faq', label: 'FAQ', icon: 'lucide:help-circle' },
+  { to: '/admin/stats', label: 'Stats', icon: 'lucide:bar-chart-2' },
 ]
 
 const isActive = (to: string) =>
@@ -105,6 +107,8 @@ const currentPageTitle = computed(() => {
   if (route.path.startsWith('/admin/categories')) return 'Catégories'
   if (route.path.startsWith('/admin/tags')) return 'Tags'
   if (route.path.startsWith('/admin/orders')) return 'Commandes'
+  if (route.path.startsWith('/admin/faq')) return 'FAQ'
+  if (route.path.startsWith('/admin/stats')) return 'Stats & Export'
   return 'Admin'
 })
 
@@ -113,3 +117,9 @@ function logout() {
   router.push('/admin/login')
 }
 </script>
+
+<style scoped>
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+</style>

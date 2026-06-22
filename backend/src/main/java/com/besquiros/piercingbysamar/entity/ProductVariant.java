@@ -43,6 +43,10 @@ public class ProductVariant {
 
     @Column(nullable = false)
     @Builder.Default
+    private Integer reservedStock = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
     private boolean active = true;
 
     @CreationTimestamp
@@ -54,6 +58,11 @@ public class ProductVariant {
     private LocalDateTime updatedAt;
 
     public boolean isInStock() {
-        return stock != null && stock > 0;
+        int available = (stock != null ? stock : 0) - (reservedStock != null ? reservedStock : 0);
+        return available > 0;
+    }
+
+    public int getAvailableStock() {
+        return Math.max(0, (stock != null ? stock : 0) - (reservedStock != null ? reservedStock : 0));
     }
 }

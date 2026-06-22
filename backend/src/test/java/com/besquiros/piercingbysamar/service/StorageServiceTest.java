@@ -26,7 +26,8 @@ class StorageServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(storageService, "bucket", "piercingbysamar");
-        ReflectionTestUtils.setField(storageService, "endpoint", "https://eu2.contabostorage.com");
+        ReflectionTestUtils.setField(storageService, "endpoint", "https://ACCOUNT_ID.r2.cloudflarestorage.com");
+        ReflectionTestUtils.setField(storageService, "publicUrl", "https://pub-test.r2.dev");
     }
 
     @Test
@@ -39,7 +40,7 @@ class StorageServiceTest {
 
         String url = storageService.upload(file, "products/1");
 
-        assertThat(url).startsWith("https://eu2.contabostorage.com/piercingbysamar/products/1/");
+        assertThat(url).startsWith("https://pub-test.r2.dev/products/1/");
         assertThat(url).endsWith(".jpg");
         verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
@@ -77,7 +78,7 @@ class StorageServiceTest {
 
     @Test
     void delete_withValidUrl_shouldCallS3Delete() {
-        String url = "https://eu2.contabostorage.com/piercingbysamar/products/1/uuid.jpg";
+        String url = "https://pub-test.r2.dev/products/1/uuid.jpg";
 
         storageService.delete(url);
 

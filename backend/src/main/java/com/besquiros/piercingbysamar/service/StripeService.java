@@ -31,13 +31,13 @@ public class StripeService {
     // Taux de secours si le service de change est indisponible
     private static final double FALLBACK_MAD_TO_EUR = 0.0926;
 
-    @Value("${stripe.webhook-secret}")
+    @Value("${stripe.webhook-secret:}")
     private String webhookSecret;
 
-    @Value("${stripe.success-url}")
+    @Value("${stripe.success-url:}")
     private String successUrl;
 
-    @Value("${stripe.cancel-url}")
+    @Value("${stripe.cancel-url:}")
     private String cancelUrl;
 
     private final OrderRepository orderRepository;

@@ -2,18 +2,48 @@
   <div class="space-y-5">
 
     <!-- Header -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-gray-800">Produits</h2>
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2">
+        <!-- Import stocks -->
+        <button class="btn-ghost py-2 px-3 text-sm flex items-center gap-1.5" @click="downloadTemplate">
+          <Icon name="lucide:download" class="w-4 h-4" />
+          Modèle stocks (.csv)
+        </button>
+        <label class="btn-ghost py-2 px-3 text-sm flex items-center gap-1.5 cursor-pointer">
+          <Icon v-if="importing" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+          <Icon v-else name="lucide:upload" class="w-4 h-4" />
+          Mettre à jour les stocks
+          <input type="file" accept=".csv,text/csv" class="hidden" :disabled="importing" @change="importStock" />
+        </label>
+      </div>
       <button class="btn-primary py-2 px-4 text-sm" @click="openCreate">
         <Icon name="lucide:plus" class="w-4 h-4" />
         Nouveau produit
       </button>
     </div>
 
+    <!-- Résultat import -->
+    <div v-if="importResult" class="rounded-xl border p-4 text-sm space-y-2"
+      :class="importResult.errors.length ? 'border-orange-200 bg-orange-50' : 'border-green-200 bg-green-50'">
+      <div class="flex items-center justify-between">
+        <p class="font-semibold" :class="importResult.errors.length ? 'text-orange-700' : 'text-green-700'">
+          <Icon :name="importResult.errors.length ? 'lucide:alert-triangle' : 'lucide:check-circle'" class="w-4 h-4 inline mr-1" />
+          {{ importResult.updatedCount }} variante(s) mise(s) à jour
+          <span v-if="importResult.errors.length" class="ml-2 text-orange-600">· {{ importResult.errors.length }} erreur(s)</span>
+        </p>
+        <button class="text-[--color-text-muted] hover:text-[--color-text-muted]" @click="importResult = null">
+          <Icon name="lucide:x" class="w-4 h-4" />
+        </button>
+      </div>
+      <ul v-if="importResult.errors.length" class="text-orange-600 space-y-0.5 text-xs">
+        <li v-for="e in importResult.errors" :key="e">{{ e }}</li>
+      </ul>
+    </div>
+
     <!-- Filters -->
     <div class="flex flex-wrap gap-3">
       <div class="relative flex-1 min-w-48">
-        <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Icon name="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-text-muted]" />
         <input v-model="filterName" type="text" placeholder="Rechercher par nom…" class="input pl-9 py-2 text-sm w-full" />
       </div>
       <select v-model="filterActive" class="input py-2 text-sm">
@@ -24,19 +54,19 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div v-if="pending" class="p-10 text-center text-gray-400">
+    <div class="bg-white rounded-xl border border-[--color-border] overflow-hidden">
+      <div v-if="pending" class="p-10 text-center text-[--color-text-muted]">
         <Icon name="lucide:loader-2" class="w-6 h-6 animate-spin mx-auto mb-2" />
         Chargement…
       </div>
 
-      <div v-else-if="!products.length" class="p-10 text-center text-gray-400">
+      <div v-else-if="!products.length" class="p-10 text-center text-[--color-text-muted]">
         Aucun produit. <button class="text-[--color-primary-dark] underline" @click="openCreate">Créer le premier.</button>
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide border-b border-gray-100">
+          <thead class="bg-[--color-background-soft] text-[--color-text-muted] text-xs uppercase tracking-wide border-b border-[--color-border]">
             <tr>
               <th class="text-left px-5 py-3 w-12" />
               <th class="text-left px-5 py-3">Nom</th>
@@ -49,10 +79,10 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50 transition-colors">
+            <tr v-for="product in products" :key="product.id" class="hover:bg-[--color-background-soft] transition-colors">
               <!-- Thumbnail -->
               <td class="px-5 py-3">
-                <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100">
+                <div class="w-10 h-10 rounded-lg overflow-hidden bg-[--color-background-soft]">
                   <NuxtImg
                     v-if="product.coverImageUrl"
                     :src="product.coverImageUrl"
@@ -67,12 +97,12 @@
                 </div>
               </td>
               <td class="px-5 py-3">
-                <p class="font-medium text-gray-800">{{ product.name }}</p>
-                <p class="text-gray-400 text-xs font-mono">{{ product.slug }}</p>
+                <p class="font-medium text-[--color-text]">{{ product.name }}</p>
+                <p class="text-[--color-text-muted] text-xs font-mono">{{ product.slug }}</p>
               </td>
-              <td class="px-5 py-3 text-gray-500">{{ product.categoryName }}</td>
-              <td class="px-5 py-3 text-gray-500 text-xs">{{ materialLabel(product.material) }}</td>
-              <td class="px-5 py-3 text-gray-700 whitespace-nowrap">
+              <td class="px-5 py-3 text-[--color-text-muted]">{{ product.categoryName }}</td>
+              <td class="px-5 py-3 text-[--color-text-muted] text-xs">{{ materialLabel(product.material) }}</td>
+              <td class="px-5 py-3 text-[--color-text] whitespace-nowrap">
                 <template v-if="product.minPriceCents === product.maxPriceCents">
                   {{ formatPrice(product.minPriceCents) }}
                 </template>
@@ -92,13 +122,13 @@
               <td class="px-5 py-3">
                 <span
                   class="text-xs font-medium"
-                  :class="product.active !== false ? 'text-green-600' : 'text-gray-400'"
+                  :class="product.active !== false ? 'text-green-600' : 'text-[--color-text-muted]'"
                 >
                   {{ product.active !== false ? 'Actif' : 'Inactif' }}
                 </span>
               </td>
               <td class="px-5 py-3">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 justify-end">
                   <button class="text-xs text-blue-600 hover:underline" @click="openEdit(product.id)">Modifier</button>
                   <button
                     class="text-xs hover:underline"
@@ -119,9 +149,9 @@
 
     <!-- Pagination -->
     <div v-if="data && data.totalPages > 1" class="flex justify-center gap-2">
-      <button class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-40" :disabled="page === 0" @click="page--">← Précédent</button>
-      <span class="px-3 py-1.5 text-sm text-gray-600">{{ page + 1 }} / {{ data.totalPages }}</span>
-      <button class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm disabled:opacity-40" :disabled="data.last" @click="page++">Suivant →</button>
+      <button class="px-3 py-1.5 rounded-lg border border-[--color-border] text-sm disabled:opacity-40" :disabled="page === 0" @click="page--">← Précédent</button>
+      <span class="px-3 py-1.5 text-sm text-[--color-text-muted]">{{ page + 1 }} / {{ data.totalPages }}</span>
+      <button class="px-3 py-1.5 rounded-lg border border-[--color-border] text-sm disabled:opacity-40" :disabled="data.last" @click="page++">Suivant →</button>
     </div>
 
     <!-- ── Product panel (create / edit) ───────────────────────── -->
@@ -131,11 +161,11 @@
         <aside class="relative w-full max-w-2xl bg-white shadow-2xl flex flex-col overflow-y-auto">
 
           <!-- Panel header -->
-          <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 sticky top-0 bg-white z-10">
-            <h3 class="font-semibold text-gray-800">
+          <div class="flex items-center justify-between px-6 py-5 border-b border-[--color-border] sticky top-0 bg-white z-10">
+            <h3 class="font-semibold text-[--color-text]">
               {{ editingId ? 'Modifier le produit' : 'Nouveau produit' }}
             </h3>
-            <button class="text-gray-400 hover:text-gray-600" @click="closePanel">
+            <button class="text-[--color-text-muted] hover:text-[--color-text-muted]" @click="closePanel">
               <Icon name="lucide:x" class="w-5 h-5" />
             </button>
           </div>
@@ -150,7 +180,7 @@
 
             <!-- ── Product fields ── -->
             <section class="space-y-4">
-              <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Informations produit</h4>
+              <h4 class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide">Informations produit</h4>
 
               <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
@@ -179,9 +209,9 @@
                   <textarea v-model="form.description" class="input resize-none" rows="3" placeholder="Description du produit…" />
                 </div>
                 <div class="col-span-2">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input v-model="form.nickelFree" type="checkbox" class="rounded" />
-                    <span class="text-sm text-gray-700">Nickel Free</span>
+                  <label class="flex items-center gap-2.5 cursor-pointer w-fit">
+                    <input v-model="form.nickelFree" type="checkbox" class="w-4 h-4 rounded accent-[--color-primary] cursor-pointer" />
+                    <span class="text-sm text-[--color-text]">Nickel Free <span class="text-xs text-[--color-text-muted]">(badge affiché sur la fiche produit)</span></span>
                   </label>
                 </div>
               </div>
@@ -189,7 +219,7 @@
 
             <!-- ── SEO ── -->
             <section class="space-y-4">
-              <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">SEO (optionnel)</h4>
+              <h4 class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide">SEO (optionnel)</h4>
               <div>
                 <label class="field-label">Meta title</label>
                 <input v-model="form.metaTitle" type="text" class="input" placeholder="Anneau Titane Hélix — Piercing by Samar" />
@@ -203,7 +233,8 @@
             <!-- ── Tags (edit only) ── -->
             <section v-if="editingProduct" class="space-y-3">
               <div class="flex items-center gap-2">
-                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tags</h4>
+                <h4 class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide">Tags</h4>
+                <span class="text-[10px] text-[--color-text-muted] bg-[--color-background-soft] rounded px-1.5 py-0.5">auto-sauvegardé</span>
                 <Transition name="fade">
                   <span v-if="tagSaved" class="text-xs text-green-600 flex items-center gap-1">
                     <Icon name="lucide:check" class="w-3 h-3" /> sauvegardé
@@ -224,7 +255,7 @@
                   {{ tag.name }}
                 </button>
               </div>
-              <p v-if="allTags.length === 0" class="text-xs text-gray-400">
+              <p v-if="allTags.length === 0" class="text-xs text-[--color-text-muted]">
                 Aucun tag disponible. <NuxtLink to="/admin/tags" class="underline">Créer des tags</NuxtLink>
               </p>
             </section>
@@ -232,7 +263,7 @@
             <!-- ── Variants (edit only) ── -->
             <section v-if="editingProduct" class="space-y-4">
               <div class="flex items-center justify-between">
-                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Variantes</h4>
+                <h4 class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide">Variantes</h4>
                 <button class="text-xs text-[--color-primary-dark] hover:underline flex items-center gap-1" @click="openAddVariant">
                   <Icon name="lucide:plus" class="w-3.5 h-3.5" />
                   Ajouter
@@ -241,7 +272,7 @@
 
               <!-- Add variant form -->
               <Transition name="fade">
-                <div v-if="showAddVariant" class="bg-gray-50 rounded-xl p-4 space-y-3">
+                <div v-if="showAddVariant" class="bg-[--color-background-soft] rounded-xl p-4 space-y-3">
                   <div class="grid grid-cols-2 gap-3">
                     <div class="col-span-2">
                       <label class="field-label">SKU *</label>
@@ -288,19 +319,26 @@
                 <li
                   v-for="v in editingProduct.variants"
                   :key="v.id"
-                  class="bg-gray-50 rounded-xl px-4 py-3 text-sm space-y-2"
+                  class="bg-[--color-background-soft] rounded-xl px-4 py-3 text-sm space-y-2"
                 >
                   <!-- Collapsed view -->
                   <div v-if="editingVariantId !== v.id" class="flex items-center justify-between">
                     <div>
-                      <p class="font-medium text-gray-800">
+                      <p class="font-medium text-[--color-text]">
                         {{ [v.size, v.color].filter(Boolean).join(' · ') || '—' }}
                         <span v-if="!v.active" class="ml-2 text-xs text-orange-500">(inactif)</span>
                       </p>
-                      <p class="text-gray-400 text-xs">{{ v.sku }} · {{ formatPrice(v.priceCents) }} · stock : {{ v.stock }}</p>
+                      <p class="text-[--color-text-muted] text-xs">
+                        {{ v.sku }} · {{ formatPrice(v.priceCents) }} ·
+                        dispo : <span :class="v.availableStock === 0 ? 'text-red-400 font-medium' : ''">{{ v.availableStock }}</span>
+                        <template v-if="v.reservedStock > 0">
+                          · <span class="text-amber-500">{{ v.reservedStock }} réservé{{ v.reservedStock > 1 ? 's' : '' }}</span>
+                        </template>
+                        · total : {{ v.stock }}
+                      </p>
                     </div>
                     <div class="flex items-center gap-2">
-                      <button class="text-gray-400 hover:text-gray-700" @click="openEditVariant(v)">
+                      <button class="text-[--color-text-muted] hover:text-[--color-text]" @click="openEditVariant(v)">
                         <Icon name="lucide:pencil" class="w-4 h-4" />
                       </button>
                       <button class="text-red-400 hover:text-red-600" @click="deleteVariant(v.id)">
@@ -332,8 +370,9 @@
                         <label class="label text-xs">Stock</label>
                         <input v-model.number="editVariantForm.stock" type="number" min="0" class="input py-1.5 text-sm" />
                       </div>
-                      <div class="flex items-end pb-1">
-                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <div>
+                        <label class="label text-xs opacity-0 select-none">.</label>
+                        <label class="flex items-center gap-2 text-sm text-[--color-text] cursor-pointer py-1.5">
                           <input v-model="editVariantForm.active" type="checkbox" class="w-4 h-4 accent-[--color-primary]" />
                           Active
                         </label>
@@ -349,81 +388,54 @@
                   </div>
                 </li>
               </ul>
-              <p v-else class="text-sm text-gray-400">Aucune variante. Ajoutez-en au moins une.</p>
+              <p v-else class="text-sm text-[--color-text-muted]">Aucune variante. Ajoutez-en au moins une.</p>
             </section>
 
             <!-- ── Images (edit only) ── -->
             <section v-if="editingProduct" class="space-y-4">
-              <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Images</h4>
-
-              <!-- Existing images -->
-              <div v-if="editingProduct.images.length" class="space-y-3">
-                <div
-                  v-for="(img, idx) in sortedImages"
-                  :key="img.id"
-                  class="flex gap-3 items-center bg-gray-50 rounded-xl p-2"
-                >
-                  <!-- Thumbnail -->
-                  <div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-                    <NuxtImg :src="img.r2Url" :alt="img.altText ?? ''" width="64" height="64" class="w-full h-full object-cover" />
-                  </div>
-
-                  <!-- Alt text input -->
-                  <input
-                    :value="img.altText ?? ''"
-                    type="text"
-                    class="input py-1.5 text-sm flex-1"
-                    placeholder="Description de l'image (SEO)"
-                    @change="updateImageAlt(img.id, ($event.target as HTMLInputElement).value)"
-                  />
-
-                  <!-- Reorder + delete -->
-                  <div class="flex flex-col gap-1">
-                    <button
-                      class="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      :disabled="idx === 0"
-                      title="Monter"
-                      @click="moveImage(img.id, idx, -1)"
-                    >
-                      <Icon name="lucide:chevron-up" class="w-4 h-4" />
-                    </button>
-                    <button
-                      class="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      :disabled="idx === sortedImages.length - 1"
-                      title="Descendre"
-                      @click="moveImage(img.id, idx, 1)"
-                    >
-                      <Icon name="lucide:chevron-down" class="w-4 h-4" />
-                    </button>
-                  </div>
-                  <button class="p-1.5 text-red-400 hover:text-red-600" title="Supprimer" @click="deleteImage(img.id)">
-                    <Icon name="lucide:trash-2" class="w-4 h-4" />
-                  </button>
-                </div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide">Images</h4>
+                <span class="text-[10px] text-[--color-text-muted] bg-[--color-background-soft] rounded px-1.5 py-0.5">auto-sauvegardé</span>
               </div>
 
-              <!-- Upload -->
-              <div>
-                <label
-                  class="flex flex-col items-center gap-2 border-2 border-dashed border-gray-200
-                         rounded-xl py-6 cursor-pointer hover:border-[--color-primary-light] transition-colors"
-                >
-                  <Icon name="lucide:upload-cloud" class="w-7 h-7 text-gray-400" />
-                  <span class="text-sm text-gray-500">Cliquez pour uploader (max 10 Mo)</span>
-                  <input type="file" accept="image/*" multiple class="hidden" @change="uploadImages" />
-                </label>
-                <div v-if="uploadingImages" class="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                  <Icon name="lucide:loader-2" class="w-4 h-4 animate-spin" />
-                  Upload en cours…
+              <!-- Images produit (sans variante) -->
+              <div class="space-y-2">
+                <p class="text-xs text-[--color-text-muted] font-medium">Photos générales du produit</p>
+                <ImageGalleryEditor
+                  :images="sortedImages.filter(i => !i.variantId)"
+                  :uploading="uploadingImages"
+                  @delete="deleteImage"
+                  @move="moveImage"
+                  @update-alt="updateImageAlt"
+                  @upload="(e) => uploadImagesForVariant(e, null)"
+                />
+              </div>
+
+              <!-- Images par variante -->
+              <div v-if="editingProduct.variants.length" class="space-y-3">
+                <p class="text-xs text-[--color-text-muted] font-medium">Photos par variante <span class="text-[--color-text-muted] font-normal">(remplacent les photos générales lors de la sélection)</span></p>
+                <div v-for="v in editingProduct.variants" :key="v.id" class="border border-[--color-border] rounded-xl p-3 space-y-2">
+                  <p class="text-xs font-semibold text-[--color-text-muted]">
+                    {{ [v.size, v.color].filter(Boolean).join(' · ') || v.sku }}
+                  </p>
+                  <ImageGalleryEditor
+                    :images="sortedImages.filter(i => i.variantId === v.id)"
+                    :uploading="uploadingVariantId === v.id"
+                    :compact="true"
+                    @delete="deleteImage"
+                    @move="moveImage"
+                    @update-alt="updateImageAlt"
+                    @upload="(e) => uploadImagesForVariant(e, v.id)"
+                  />
                 </div>
               </div>
             </section>
           </div>
 
           <!-- Panel footer -->
-          <div class="px-6 py-4 border-t border-gray-100 bg-white sticky bottom-0 flex gap-3 justify-end">
+          <div class="px-6 py-4 border-t border-[--color-border] bg-white sticky bottom-0 flex gap-3 justify-end">
             <button class="btn-ghost" @click="closePanel">Annuler</button>
-            <button class="btn-primary" :disabled="savingProduct" @click="saveProduct">
+            <button class="btn-primary" :disabled="savingProduct || (!!editingId && !isDirty)" @click="saveProduct">
               <Icon v-if="savingProduct" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
               {{ editingId ? 'Enregistrer' : 'Créer le produit' }}
             </button>
@@ -499,6 +511,7 @@ let tagSavedTimer: ReturnType<typeof setTimeout> | null = null
 
 // ── Panel state ────────────────────────────────────────────────
 const panelOpen = ref(false)
+useScrollLock(panelOpen)
 const editingId = ref<number | null>(null)
 const editingProduct = ref<ProductDetail | null>(null)
 const panelError = ref<string | null>(null)
@@ -783,21 +796,26 @@ async function saveVariant(variantId: number) {
 
 // ── Images ─────────────────────────────────────────────────────
 const uploadingImages = ref(false)
+const uploadingVariantId = ref<number | null>(null)
 
-async function uploadImages(e: Event) {
+async function uploadImagesForVariant(e: Event, variantId: number | null) {
   if (!editingId.value) return
   const files = (e.target as HTMLInputElement).files
   if (!files?.length) return
-  uploadingImages.value = true
+
+  if (variantId === null) uploadingImages.value = true
+  else uploadingVariantId.value = variantId
+
   let successCount = 0
   let errorCount = 0
   for (const file of Array.from(files)) {
     const fd = new FormData()
     fd.append('file', file)
+    if (variantId !== null) fd.append('variantId', String(variantId))
     try {
       await $fetch(`/api/admin/products/${editingId.value}/images`, {
         method: 'POST',
-        baseURL: useRuntimeConfig().public.apiBase as string,
+        baseURL: '',
         headers: auth.authHeader,
         body: fd,
       })
@@ -811,11 +829,11 @@ async function uploadImages(e: Event) {
   const updated = await get<ProductDetail>(`/api/admin/products/${editingId.value}`, { headers: headers.value }).catch(() => null)
   if (updated) editingProduct.value = updated
   uploadingImages.value = false
+  uploadingVariantId.value = null
   refresh()
   if (successCount > 0 && errorCount === 0) success(`${successCount} image${successCount > 1 ? 's' : ''} uploadée${successCount > 1 ? 's' : ''}.`)
   else if (successCount > 0) success(`${successCount} uploadée(s), ${errorCount} échouée(s).`)
-  // si que des erreurs, les toasts individuels suffisent
-  ;(e.target as HTMLInputElement).value = '' // reset input pour permettre re-upload du même fichier
+  ;(e.target as HTMLInputElement).value = ''
 }
 
 async function deleteImage(imageId: number) {
@@ -838,7 +856,7 @@ async function updateImageAlt(imageId: number, altText: string) {
   try {
     await $fetch(`/api/admin/products/${editingId.value}/images/${imageId}`, {
       method: 'PATCH',
-      baseURL: useRuntimeConfig().public.apiBase as string,
+      baseURL: '',
       headers: auth.authHeader,
       body: { altText },
     })
@@ -853,16 +871,19 @@ async function updateImageAlt(imageId: number, altText: string) {
 
 async function moveImage(imageId: number, currentIdx: number, direction: -1 | 1) {
   if (!editingId.value || !editingProduct.value) return
-  const imgs = [...sortedImages.value]
+
+  // Trouver l'image et travailler dans son groupe (même variantId)
+  const targetImage = sortedImages.value.find(i => i.id === imageId)
+  if (!targetImage) return
+  const imgs = sortedImages.value.filter(i => i.variantId === targetImage.variantId)
+
   const swapIdx = currentIdx + direction
   if (swapIdx < 0 || swapIdx >= imgs.length) return
 
-  // Use index as canonical position (handles legacy images all at position 0)
   const posA = currentIdx
   const posB = swapIdx
   imgs[currentIdx].position = posB
   imgs[swapIdx].position = posA
-  // Update locally
   editingProduct.value.images = editingProduct.value.images.map(img => {
     const updated = imgs.find(i => i.id === img.id)
     return updated ?? img
@@ -872,13 +893,13 @@ async function moveImage(imageId: number, currentIdx: number, direction: -1 | 1)
     await Promise.all([
       $fetch(`/api/admin/products/${editingId.value}/images/${imgs[currentIdx].id}`, {
         method: 'PATCH',
-        baseURL: useRuntimeConfig().public.apiBase as string,
+        baseURL: '',
         headers: auth.authHeader,
         body: { position: posB },
       }),
       $fetch(`/api/admin/products/${editingId.value}/images/${imgs[swapIdx].id}`, {
         method: 'PATCH',
-        baseURL: useRuntimeConfig().public.apiBase as string,
+        baseURL: '',
         headers: auth.authHeader,
         body: { position: posA },
       }),
@@ -890,11 +911,63 @@ function formatPrice(cents: number) {
   if (!cents && cents !== 0) return '—'
   return Math.round(cents / 100) + ' MAD'
 }
+
+// ── Import stocks ──────────────────────────────────────────────
+const importing = ref(false)
+interface ImportResult { updatedCount: number; errors: string[]; updated: string[] }
+const importResult = ref<ImportResult | null>(null)
+
+async function downloadTemplate() {
+  const res = await fetch('/api/admin/import/stock-template.csv', { headers: auth.authHeader })
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = 'template_stocks.csv'; a.click()
+  URL.revokeObjectURL(url)
+}
+
+async function importStock(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  importing.value = true
+  importResult.value = null
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const result = await $fetch<ImportResult>('/api/admin/import/stock', {
+      method: 'POST', baseURL: '', headers: auth.authHeader, body: fd,
+    })
+    importResult.value = result
+    if (result.updatedCount > 0) { await refresh(); refreshPanelProduct() }
+    if (!result.errors.length) success(`${result.updatedCount} stock(s) mis à jour.`)
+  } catch (err: any) {
+    toastError(err?.data?.message ?? 'Erreur lors de l\'import')
+  } finally {
+    importing.value = false
+    ;(e.target as HTMLInputElement).value = ''
+  }
+}
+
+function refreshPanelProduct() {
+  if (!editingId.value || !editingProduct.value) return
+  get<ProductDetail>(`/api/admin/products/${editingId.value}`, { headers: headers.value })
+    .then(p => { if (p) editingProduct.value = p })
+    .catch(() => {})
+}
+
 useSeoMeta({ title: 'Produits — Admin', robots: 'noindex' })
+
+const route = useRoute()
+onMounted(async () => {
+  const editId = route.query.edit
+  if (editId) {
+    await openEdit(Number(editId))
+  }
+})
 </script>
 
 <style scoped>
-.field-label { @apply text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5; }
+.field-label { @apply text-xs font-semibold text-[--color-text-muted] uppercase tracking-wide block mb-1.5; }
 .slide-enter-active, .slide-leave-active { transition: opacity 0.25s; }
 .slide-enter-from, .slide-leave-to { opacity: 0; }
 .slide-enter-active aside, .slide-leave-active aside { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }

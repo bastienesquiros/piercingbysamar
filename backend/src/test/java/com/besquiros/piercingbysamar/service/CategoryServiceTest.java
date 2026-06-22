@@ -27,7 +27,7 @@ class CategoryServiceTest {
     @Test
     void getRootCategoriesWithChildren_shouldReturnMappedList() {
         Category cat = Category.builder().id(1L).name("Oreille").slug("oreille").build();
-        CategoryResponse response = new CategoryResponse(1L, null, "Oreille", "oreille", null, List.of());
+        CategoryResponse response = new CategoryResponse(1L, null, "Oreille", "oreille", null, null, List.of());
 
         when(categoryRepository.findRootCategoriesWithChildren()).thenReturn(List.of(cat));
         when(categoryMapper.toResponseList(List.of(cat))).thenReturn(List.of(response));
@@ -42,7 +42,7 @@ class CategoryServiceTest {
     @Test
     void getBySlug_whenFound_shouldReturnResponse() {
         Category cat = Category.builder().id(1L).name("Hélix").slug("helix").build();
-        CategoryResponse response = new CategoryResponse(1L, null, "Hélix", "helix", null, List.of());
+        CategoryResponse response = new CategoryResponse(1L, null, "Hélix", "helix", null, null, List.of());
 
         when(categoryRepository.findBySlug("helix")).thenReturn(Optional.of(cat));
         when(categoryMapper.toResponse(cat)).thenReturn(response);

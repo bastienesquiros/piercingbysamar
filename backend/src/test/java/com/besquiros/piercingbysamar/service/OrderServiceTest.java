@@ -4,6 +4,7 @@ import com.besquiros.piercingbysamar.dto.request.CreateOrderRequest;
 import com.besquiros.piercingbysamar.dto.request.OrderItemRequest;
 import com.besquiros.piercingbysamar.dto.response.OrderResponse;
 import com.besquiros.piercingbysamar.entity.Order;
+import com.besquiros.piercingbysamar.entity.OrderItem;
 import com.besquiros.piercingbysamar.entity.Product;
 import com.besquiros.piercingbysamar.entity.ProductVariant;
 import com.besquiros.piercingbysamar.entity.enums.OrderStatus;
@@ -173,6 +174,176 @@ class OrderServiceTest {
     }
 
     @Test
+    void create_whenStockFullyReserved_shouldThrowBadRequest() {
+        // stock=5 mais tout réservé → availableStock=0
+        activeVariant.setStock(5);
+        activeVariant.setReservedStock(5);
+        CreateOrderRequest request = simpleShippingRequest();
+        when(variantRepository.findById(1L)).thenReturn(Optional.of(activeVariant));
+
+        assertThatThrownBy(() -> orderService.create(request))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    void create_whenPartiallyReservedAndInsufficientAvailable_shouldThrowBadRequest() {
+        // stock=3, reservedStock=2 → availableStock=1, on veut 2
+        activeVariant.setStock(3);
+        activeVariant.setReservedStock(2);
+        CreateOrderRequest request = new CreateOrderRequest(
+                "SHIPPING", "client@test.com", "Test", null,
+                "Rue Test", "Paris", "75001", "FR",
+                List.of(new OrderItemRequest(1L, 2)),
+                "EUR", null);
+        when(variantRepository.findById(1L)).thenReturn(Optional.of(activeVariant));
+
+        assertThatThrownBy(() -> orderService.create(request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("insuffisant");
+    }
+
+    @Test
+    void create_shouldReserveStockAfterSave() {
+        activeVariant.setStock(10);
+        activeVariant.setReservedStock(0);
+        CreateOrderRequest request = new CreateOrderRequest(
+                "SHIPPING", "client@test.com", "Client Test", "+33612345678",
+                "12 rue Test", "Paris", "75001", "FR",
+                List.of(new OrderItemRequest(1L, 3)),
+                "EUR", null);
+
+        OrderItem item = buildOrderItem(activeVariant, 3);
+        Order saved = Order.builder().id(1L).reference("PBS-2026-0010")
+                .status(OrderStatus.PENDING).items(List.of(item)).build();
+        item.setOrder(saved);
+
+        when(variantRepository.findById(1L)).thenReturn(Optional.of(activeVariant));
+        when(orderRepository.count()).thenReturn(9L);
+        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderMapper.toResponse(saved)).thenReturn(buildOrderResponse("PBS-2026-0010", "PENDING"));
+
+        orderService.create(request);
+
+        ArgumentCaptor<ProductVariant> variantCaptor = ArgumentCaptor.forClass(ProductVariant.class);
+        verify(variantRepository, atLeastOnce()).save(variantCaptor.capture());
+        assertThat(variantCaptor.getValue().getReservedStock()).isEqualTo(3);
+    }
+
+    @Test
+    void updateStatus_toPaid_shouldDecrementStockAndReleaseReservation() {
+        // PENDING stock=10 reserved=2 → PAID → stock=8, reserved=0
+        activeVariant.setStock(10);
+        activeVariant.setReservedStock(2);
+
+        OrderItem item = buildOrderItem(activeVariant, 2);
+        Order order = Order.builder().id(1L).status(OrderStatus.PENDING).items(List.of(item)).build();
+        item.setOrder(order);
+        Order saved = Order.builder().id(1L).status(OrderStatus.PAID).items(List.of(item)).build();
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderMapper.toResponse(saved)).thenReturn(buildOrderResponse("PBS-2026-0001", "PAID"));
+
+        orderService.updateStatus(1L, "PAID");
+
+        ArgumentCaptor<ProductVariant> captor = ArgumentCaptor.forClass(ProductVariant.class);
+        verify(variantRepository, atLeast(2)).save(captor.capture());
+        List<ProductVariant> savedVariants = captor.getAllValues();
+        assertThat(savedVariants.stream().anyMatch(v -> v.getStock() == 8)).isTrue();
+        assertThat(savedVariants.stream().anyMatch(v -> v.getReservedStock() == 0)).isTrue();
+    }
+
+    @Test
+    void updateStatus_toReady_shouldDecrementStockAndReleaseReservation() {
+        activeVariant.setStock(10);
+        activeVariant.setReservedStock(1);
+
+        OrderItem item = buildOrderItem(activeVariant, 1);
+        Order order = Order.builder().id(1L).status(OrderStatus.CLICK_COLLECT_PENDING).items(List.of(item)).build();
+        item.setOrder(order);
+        Order saved = Order.builder().id(1L).status(OrderStatus.READY).items(List.of(item)).build();
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderMapper.toResponse(saved)).thenReturn(buildOrderResponse("PBS-2026-0001", "READY"));
+
+        orderService.updateStatus(1L, "READY");
+
+        ArgumentCaptor<ProductVariant> captor = ArgumentCaptor.forClass(ProductVariant.class);
+        verify(variantRepository, atLeast(2)).save(captor.capture());
+        List<ProductVariant> savedVariants = captor.getAllValues();
+        assertThat(savedVariants.stream().anyMatch(v -> v.getStock() == 9)).isTrue();
+        assertThat(savedVariants.stream().anyMatch(v -> v.getReservedStock() == 0)).isTrue();
+    }
+
+    @Test
+    void updateStatus_toCancelled_whenPending_shouldOnlyReleaseReservation() {
+        // PENDING → CANCELLED : libère la réservation, stock physique inchangé
+        activeVariant.setStock(10);
+        activeVariant.setReservedStock(2);
+
+        OrderItem item = buildOrderItem(activeVariant, 2);
+        Order order = Order.builder().id(1L).status(OrderStatus.PENDING).items(List.of(item)).build();
+        item.setOrder(order);
+        Order saved = Order.builder().id(1L).status(OrderStatus.CANCELLED).items(List.of(item)).build();
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderMapper.toResponse(saved)).thenReturn(buildOrderResponse("PBS-2026-0001", "CANCELLED"));
+
+        orderService.updateStatus(1L, "CANCELLED");
+
+        ArgumentCaptor<ProductVariant> captor = ArgumentCaptor.forClass(ProductVariant.class);
+        verify(variantRepository).save(captor.capture());
+        assertThat(captor.getValue().getReservedStock()).isEqualTo(0);
+        assertThat(captor.getValue().getStock()).isEqualTo(10); // stock physique inchangé
+    }
+
+    @Test
+    void updateStatus_toCancelled_whenClickCollectPending_shouldOnlyReleaseReservation() {
+        activeVariant.setStock(5);
+        activeVariant.setReservedStock(1);
+
+        OrderItem item = buildOrderItem(activeVariant, 1);
+        Order order = Order.builder().id(1L).status(OrderStatus.CLICK_COLLECT_PENDING).items(List.of(item)).build();
+        item.setOrder(order);
+        Order saved = Order.builder().id(1L).status(OrderStatus.CANCELLED).items(List.of(item)).build();
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderMapper.toResponse(saved)).thenReturn(buildOrderResponse("PBS-2026-0001", "CANCELLED"));
+
+        orderService.updateStatus(1L, "CANCELLED");
+
+        ArgumentCaptor<ProductVariant> captor = ArgumentCaptor.forClass(ProductVariant.class);
+        verify(variantRepository).save(captor.capture());
+        assertThat(captor.getValue().getReservedStock()).isEqualTo(0);
+        assertThat(captor.getValue().getStock()).isEqualTo(5); // stock physique inchangé
+    }
+
+    @Test
+    void updateStatus_toCancelled_whenPaid_shouldReinstatePhysicalStock() {
+        // PAID → CANCELLED : réintégration stock physique (pas de reservedStock à libérer)
+        activeVariant.setStock(8);
+        activeVariant.setReservedStock(0);
+
+        OrderItem item = buildOrderItem(activeVariant, 2);
+        Order order = Order.builder().id(1L).status(OrderStatus.PAID).items(List.of(item)).build();
+        item.setOrder(order);
+        Order saved = Order.builder().id(1L).status(OrderStatus.CANCELLED).items(List.of(item)).build();
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderMapper.toResponse(saved)).thenReturn(buildOrderResponse("PBS-2026-0001", "CANCELLED"));
+
+        orderService.updateStatus(1L, "CANCELLED");
+
+        ArgumentCaptor<ProductVariant> captor = ArgumentCaptor.forClass(ProductVariant.class);
+        verify(variantRepository).save(captor.capture());
+        assertThat(captor.getValue().getStock()).isEqualTo(10); // 8+2 réintégré
+    }
+
+    @Test
     void updateStatus_shouldChangeOrderStatus() {
         Order order = Order.builder().id(1L).status(OrderStatus.PENDING).items(List.of()).build();
         Order saved = Order.builder().id(1L).status(OrderStatus.PAID).items(List.of()).build();
@@ -195,6 +366,17 @@ class OrderServiceTest {
     }
 
     // ── Helpers ───────────────────────────────────────────────
+
+    private OrderItem buildOrderItem(ProductVariant variant, int quantity) {
+        return OrderItem.builder()
+                .productVariant(variant)
+                .snapshotProductName(variant.getProduct().getName())
+                .snapshotVariantLabel("8mm - Gold")
+                .unitPriceCents(variant.getPriceCents())
+                .quantity(quantity)
+                .totalCents(variant.getPriceCents() * quantity)
+                .build();
+    }
 
     private CreateOrderRequest simpleShippingRequest() {
         return new CreateOrderRequest(

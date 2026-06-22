@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f5f1ed;font-family:Georgia,serif;color:#2C1810">
+
+<div th:fragment="layout(content)">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f1ed;padding:32px 0">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="background:#C4A882;padding:24px 32px;border-radius:8px 8px 0 0;text-align:center">
+                            <h1 style="margin:0;color:#fff;font-size:22px;letter-spacing:2px">PIERCING BY SAMAR</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="background:#fff;padding:32px;border-radius:0 0 8px 8px">
+                            <div th:replace="${content}"><!-- content --></div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding:16px 32px;text-align:center;color:#999;font-size:12px">
+                            Commande n° <span th:text="${orderReference}">REF</span>
+                            &bull; Piercing by Samar &bull;
+                            <a href="https://piercingbysamar.com" style="color:#C4A882">piercingbysamar.com</a><br>
+                            <a th:href="'https://wa.me/' + ${whatsappNumber}" style="color:#999;text-decoration:none">💬 +212 7 81 57 00 83</a>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

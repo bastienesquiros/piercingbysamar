@@ -6,6 +6,7 @@ export interface Category {
   name: string
   slug: string
   description: string | null
+  imageUrl: string | null
   children: Category[]
 }
 
@@ -31,6 +32,8 @@ export interface ProductVariant {
   color: string | null
   priceCents: number
   stock: number
+  reservedStock: number
+  availableStock: number
   inStock: boolean
   active: boolean
 }
@@ -40,6 +43,7 @@ export interface ProductImage {
   r2Url: string
   position: number
   altText: string | null
+  variantId: number | null
 }
 
 export interface ProductDetail {

@@ -76,6 +76,11 @@
           </p>
           <ul class="space-y-2">
             <li>
+              <NuxtLink :to="localePath('/faq')" class="text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors">
+                FAQ
+              </NuxtLink>
+            </li>
+            <li>
               <NuxtLink :to="localePath('/legal')" class="text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors">
                 {{ $t('footer.legal') }}
               </NuxtLink>
@@ -99,7 +104,7 @@
         <p class="text-xs text-[--color-text-muted]">
           © {{ new Date().getFullYear() }} Piercing by Samar. {{ $t('footer.rights') }}
         </p>
-        <div class="flex items-center gap-2">
+        <div v-if="stripeEnabled" class="flex items-center gap-2">
           <Icon name="simple-icons:stripe" class="w-8 h-5 text-[--color-text-muted]" />
           <span class="text-xs text-[--color-text-muted]">{{ $t('footer.secure_payment') }}</span>
         </div>
@@ -111,6 +116,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { public: { stripeEnabled } } = useRuntimeConfig()
 
 const socials = [
   { label: 'Instagram',  href: 'https://www.instagram.com/piercing_bysamar',      icon: 'lucide:instagram' },

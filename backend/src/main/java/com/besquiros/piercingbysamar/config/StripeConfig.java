@@ -8,11 +8,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class StripeConfig {
 
-    @Value("${stripe.secret-key}")
+    @Value("${app.stripe.enabled:true}")
+    private boolean stripeEnabled;
+
+    @Value("${stripe.secret-key:}")
     private String secretKey;
 
     @PostConstruct
     public void init() {
-        Stripe.apiKey = secretKey;
+        if (stripeEnabled) {
+            Stripe.apiKey = secretKey;
+        }
     }
 }
